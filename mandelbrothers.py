@@ -18,19 +18,31 @@ class Game:
 
 	def load_data(self):
 		gameFolder = path.dirname(__file__)
-		imageFolder = path.join(gameFolder, 'images')
+		# imageFolder = path.join(gameFolder, 'images')
 		self.map = Map(path.join(gameFolder, 'overworld.txt'))
-		self.player_img = pygame.image.load(path.join(imageFolder, PLAYER_IMAGE)).convert_alpha()
-	
+		self.player_img = pygame.image.load('images/back.png').convert_alpha()
+		self.es_img = pygame.image.load('images/electric_snake.png').convert_alpha()
+		self.reap_img = pygame.image.load('images/reaper.png').convert_alpha()
+		self.snail_img = pygame.image.load('images/snail.png').convert_alpha()
+		self.floor_img = pygame.image.load('images/floor.png').convert_alpha()
+		self.boundary_img = pygame.image.load('images/ames.png').convert_alpha()
+
 	def newGame(self):
 		self.all_sprites = pygame.sprite.Group()
 		self.boundaries = pygame.sprite.Group()
+		self.mobs = pygame.sprite.Group()
 		for row in range(0, len(self.map.data)):
 			for col in range (0, len(self.map.data[row])):
 				if self.map.data[row][col] == ',':
 					Boundary(self,col,row)
 				if self.map.data[row][col] == 'P':
 					self.player = Player(self,col,row)
+				if self.map.data[row][col] == 'E':
+					Mob(self,col,row,'E')
+				if self.map.data[row][col] == 'R':
+					Mob(self,col,row,'R')
+				if self.map.data[row][col] == 'S':
+					Mob(self,col,row,'S')
 		self.camera = Cam(self.map.width, self.map.height)
 					
 	def run(self):
@@ -59,8 +71,9 @@ class Game:
 	
 	def drawScreen(self):
 		# renders the screen
+		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 		self.screen.fill(BACKGROUND_COLOR)
-		self.drawGrid()
+		#self.drawGrid()
 		for sprite in self.all_sprites:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
