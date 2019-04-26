@@ -4,10 +4,10 @@ from os import path
 
 vector = pygame.math.Vector2
 walkcount = 0
-walkRight = [pygame.image.load('images/side2_walk2.png'), pygame.image.load('images/side2_walk.png')]
-walkLeft = [pygame.image.load('images/side_walk2.png'), pygame.image.load('images/side_walk.png')]
-walkUp = [pygame.image.load('images/walk2.png'), pygame.image.load('images/walk.png')]
-walkDown = [pygame.image.load('images/front_walk2.png'), pygame.image.load('images/front_walk.png')]
+walkRight = [pygame.transform.scale(pygame.image.load('images/side2_walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/side2_walk.png'), (64,64))]
+walkLeft = [pygame.transform.scale(pygame.image.load('images/side_walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/side_walk.png'), (64,64))]
+walkUp = [pygame.transform.scale(pygame.image.load('images/walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/walk.png'), (64,64))]
+walkDown = [pygame.transform.scale(pygame.image.load('images/front_walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/front_walk.png'), (64,64))]
 left = False
 right = False
 down = False
@@ -103,13 +103,13 @@ class Player (pygame.sprite.Sprite):
 			up = True
 		else:
 			if left:
-				self.image = pygame.image.load('images/side.png')
+				self.image = pygame.transform.scale(pygame.image.load('images/side.png'), (64,64))
 			elif right:
-				self.image = pygame.image.load('images/side2.png')
+				self.image = pygame.transform.scale(pygame.image.load('images/side2.png'), (64,64))
 			elif down:
-				self.image = pygame.image.load('images/front.png')
+				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (64,64))
 			elif up:
-				self.image = pygame.image.load('images/back.png')
+				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (64,64))
 			left = False
 			right = False
 			down = False
@@ -186,7 +186,7 @@ class Mob(pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
-		if abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y) < 250:
+		if abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y) < 500:
 			self.acc = vector(MOB_SPEED, 0).rotate(-self.vec)
 			self.acc += self.vel * -1
 			self.vel += self.acc * self.game.dt

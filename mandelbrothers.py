@@ -20,12 +20,12 @@ class Game:
 		gameFolder = path.dirname(__file__)
 		# imageFolder = path.join(gameFolder, 'images')
 		self.map = Map(path.join(gameFolder, 'overworld.txt'))
-		self.player_img = pygame.image.load('images/back.png').convert_alpha()
-		self.es_img = pygame.image.load('images/electric_snake.png').convert_alpha()
-		self.reap_img = pygame.image.load('images/reaper.png').convert_alpha()
-		self.snail_img = pygame.image.load('images/snail.png').convert_alpha()
-		self.floor_img = pygame.image.load('images/floor.png').convert_alpha()
-		self.boundary_img = pygame.image.load('images/ames.png').convert_alpha()
+		self.player_img = pygame.transform.scale(pygame.image.load('images/back.png').convert_alpha(), (64,64))
+		self.es_img = pygame.transform.scale(pygame.image.load('images/electric_snake.png').convert_alpha(), (64,64))
+		self.reap_img = pygame.transform.scale(pygame.image.load('images/reaper.png').convert_alpha(), (64,64))
+		self.snail_img = pygame.transform.scale(pygame.image.load('images/snail.png').convert_alpha(), (64,64))
+		self.floor_img = pygame.transform.scale(pygame.image.load('images/floor.png').convert_alpha(), (64,64))
+		self.boundary_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (64,64))
 
 	def newGame(self):
 		self.all_sprites = pygame.sprite.Group()
@@ -91,7 +91,9 @@ class Game:
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				self.quit()
-				# add something for escape
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_ESCAPE:
+					self.quit()
 
 # here we create the game and run it
 game = Game()
