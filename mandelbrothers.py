@@ -18,7 +18,9 @@ class Game:
 
 	def load_data(self):
 		gameFolder = path.dirname(__file__)
-		# imageFolder = path.join(gameFolder, 'images')
+		pygame.mixer.music.load('music/intro.wav')
+		pygame.mixer.music.set_volume(.5)
+		pygame.mixer.music.play(-1, 0.0)
 		self.map = Map(path.join(gameFolder, 'overworld.txt'))
 		self.player_img = pygame.transform.scale(pygame.image.load('images/back.png').convert_alpha(), (64,64))
 		self.es_img = pygame.transform.scale(pygame.image.load('images/electric_snake.png').convert_alpha(), (64,64))
@@ -26,11 +28,13 @@ class Game:
 		self.snail_img = pygame.transform.scale(pygame.image.load('images/snail.png').convert_alpha(), (64,64))
 		self.floor_img = pygame.transform.scale(pygame.image.load('images/floor.png').convert_alpha(), (64,64))
 		self.boundary_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (64,64))
+		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
 
 	def newGame(self):
 		self.all_sprites = pygame.sprite.Group()
 		self.boundaries = pygame.sprite.Group()
 		self.mobs = pygame.sprite.Group()
+		self.projectiles = pygame.sprite.Group()
 		for row in range(0, len(self.map.data)):
 			for col in range (0, len(self.map.data[row])):
 				if self.map.data[row][col] == ',':
@@ -61,6 +65,9 @@ class Game:
 	def update(self):
 		self.all_sprites.update()
 		self.camera.update(self.player)
+		hits = pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True)
+		for hit in hits:
+			hit.kill()
 	
 	def drawGrid(self):
 		# outlines tiles

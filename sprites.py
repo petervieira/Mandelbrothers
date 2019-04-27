@@ -44,6 +44,7 @@ class Player (pygame.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.vel = vector(0,0)
 		self.pos = vector(x,y) * TILESIZE 
+		self.last_shot = 0
 
 	def getKeys(self):
 		global walkcount
@@ -65,7 +66,7 @@ class Player (pygame.sprite.Sprite):
 			right = False
 			down = False
 			up = False
-		elif keys[pygame.K_d] or keys[pygame.K_RIGHT]: # change these elifs to ifs once the diagonal images are made
+		elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
 			self.image = walkRight[walkcount//12].convert_alpha()
 			if keys[pygame.K_LSHIFT]:
 				self.vel.x = PLAYER_SPEED * 1.5
@@ -110,10 +111,28 @@ class Player (pygame.sprite.Sprite):
 				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (64,64))
 			elif up:
 				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (64,64))
-			left = False
-			right = False
-			down = False
-			up = False
+			
+			# check attacks
+			if keys[pygame.K_z]:
+				type = 'arrow'
+				time = pygame.time.get_ticks()
+				if time - self.last_shot > PROJECTILE_RATE:
+					self.last_shot = time
+					dir = vector(0,0)
+					pos = vector(self.pos)
+					if left:
+						dir = vector(-1,0)
+						pos += (-25,-10)
+					elif right:
+						dir = vector(1,0)
+						pos += (25,10)
+					elif down:
+						dir = vector(0,1)
+						pos += (-10,25)
+					else:
+						dir = vector(0,-1)
+						pos += (10,-25)
+					Projectile(self.game, pos, dir, type)
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= .7071
 
@@ -195,3 +214,37 @@ class Mob(pygame.sprite.Sprite):
 			collision(self, self.game.boundaries,'x')
 			self.rect.y = self.pos.y
 			collision(self, self.game.boundaries,'y')
+
+class Projectile (pygame.sprite.Sprite):
+	def __init__ (self, game, pos, dir, type):
+		self.groups = game.all_sprites, game.projectiles
+		pygame.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		if type == 'arrow':
+			self.image = game.arrow_img
+			if dir.x == 1:
+				self.image = pygame.transform.rotate(self.game.arrow_img, -90)
+			elif dir.x == -1:
+				self.image = pygame.transform.rotate(self.game.arrow_img, 90)
+			elif dir.y == -1:
+				self.image = self.game.arrow_img
+			elif dir.y == 1:
+				self.image = pygame.transform.rotate(self.game.arrow_img, 180)
+		else:
+			self.image = game.arrow_img
+		self.rect = self.image.get_rect()
+		self.pos = vector(pos)
+		self.rect.x = pos.x
+		self.rect.y = pos.y
+		self.vel = dir * PROJECTILE_SPEED
+		self.spawn_time = pygame.time.get_ticks()
+	
+	def update(self):
+		self.pos += self.vel * self.game.dt
+		self.rect.x = self.pos.x
+		self.rect.y = self.pos.y
+		if pygame.sprite.spritecollideany(self, self.game.boundaries):
+			self.kill()
+		if pygame.time.get_ticks() - self.spawn_time > PROJECTILE_LIFETIME:
+			self.kill()
+		
