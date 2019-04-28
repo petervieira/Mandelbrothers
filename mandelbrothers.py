@@ -6,6 +6,23 @@ from sprites import *
 from os import path
 from mapp import *
 
+# HUD
+def draw_player_health(surface,x,y,percent):
+	if percent < 0:
+		percent = 0
+	BAR_LENGTH = 512
+	BAR_HEIGHT = 30
+	fill = percent * BAR_LENGTH
+	outlineRect = pygame.Rect(x,y,BAR_LENGTH,BAR_HEIGHT)
+	fillRect = pygame.Rect(x,y,fill,BAR_HEIGHT)
+	if percent > .6:
+		color = (0,255,0)
+	elif percent > .3:
+		color = (255,255,0)
+	else:
+		color = (255,0,0)
+	pygame.draw.rect(surface,color,fillRect)
+	pygame.draw.rect(surface,(255,255,255),outlineRect, 2)
 class Game:
 	def __init__(self):
 		os.environ['SDL_VIDEO_CENTERED'] = "1"
@@ -27,7 +44,9 @@ class Game:
 		self.reap_img = pygame.transform.scale(pygame.image.load('images/reaper.png').convert_alpha(), (64,64))
 		self.snail_img = pygame.transform.scale(pygame.image.load('images/snail.png').convert_alpha(), (64,64))
 		self.floor_img = pygame.transform.scale(pygame.image.load('images/floor.png').convert_alpha(), (64,64))
-		self.boundary_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (64,64))
+		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
+		#self.boundary_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (64,64))
+		# add another boundary scaled down to allow for smooth passage
 		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
 
 	def newGame(self):
@@ -65,9 +84,21 @@ class Game:
 	def update(self):
 		self.all_sprites.update()
 		self.camera.update(self.player)
+		# player gets hit by mob
+		hits = pygame.sprite.spritecollide(self.player, self.mobs, False)
+		for hit in hits:
+			self.player.health -= hit.damage
+			hit.vel = vector(0,0)
+			if self.player.health <= 0:
+				self.playing = False
+		
+		# add knockback or cooldown for attacks
+		
+		# mob gets hit by player
 		hits = pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True)
 		for hit in hits:
-			hit.kill()
+			hit.health -= PROJECTILE_DAMAGE
+			hit.vel = vector(0,0)
 	
 	def drawGrid(self):
 		# outlines tiles
@@ -80,10 +111,17 @@ class Game:
 		# renders the screen
 		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 		self.screen.fill(BACKGROUND_COLOR)
+		for i in range (0, WIDTH//TILESIZE):
+			for j in range (0, HEIGHT//TILESIZE):
+				self.screen.blit(self.floor_img, [i*TILESIZE,j*TILESIZE])
 		#self.drawGrid()
 		for sprite in self.all_sprites:
+			if isinstance(sprite, Mob):
+				sprite.drawHealth()
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
+		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
+		
 		pygame.display.flip()
 	
 	def initScreen(self):
