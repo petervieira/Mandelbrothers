@@ -22,11 +22,11 @@ class Cam:
 		self.camera = pygame.Rect(0,0,width,height)
 	
 	def call(self, entity):
-		# shifts the rectangular camera by 32 pixels
+		# shifts the rectangular camera by 64 pixels
 		return entity.rect.move(self.camera.topleft)
 	
 	def update(self, entity):
-		x = -entity.rect.x + int(WIDTH / 2)
+		x = -entity.rect.x + int(WIDTH / 2) - 32
 		y = -entity.rect.y + int(HEIGHT / 2)
 		
 		x = min(0, x)

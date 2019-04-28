@@ -14,7 +14,7 @@ down = False
 up = False
 
 def collision(sprite, group, direction):
-	# position the character to press against the wall and remove any space
+	# also positions the character to press against the wall and remove any space
 	if direction == 'x':
 		collide = pygame.sprite.spritecollide(sprite, group, False)
 		if collide:
@@ -45,6 +45,8 @@ class Player (pygame.sprite.Sprite):
 		self.vel = vector(0,0)
 		self.pos = vector(x,y) * TILESIZE 
 		self.last_shot = 0
+		self.health = 100
+		self.fullHealth = 100
 
 	def getKeys(self):
 		global walkcount
@@ -168,15 +170,27 @@ class Mob(pygame.sprite.Sprite):
 		if type == 'E':
 			self.image = game.es_img
 			self.type = 'E'
+			self.health = 100
+			self.fullHealth = 100
+			self.damage = 30
 		elif type == 'R':
 			self.image = game.reap_img
 			self.type = 'R'
+			self.health = 150
+			self.fullHealth = 150
+			self.damage = 50
 		elif type == 'S':
 			self.image = game.snail_img
 			self.type = 'S'
+			self.health = 50
+			self.fullHealth = 50
+			self.damage = 10
 		else:
 			self.image = game.es_img
 			self.type = "_"
+			self.health = 100
+			self.fullHealth = 100
+			self.damage = 20
 			# temporary
 		self.rect = self.image.get_rect()
 		self.pos = vector(x,y) * TILESIZE
@@ -214,7 +228,22 @@ class Mob(pygame.sprite.Sprite):
 			collision(self, self.game.boundaries,'x')
 			self.rect.y = self.pos.y
 			collision(self, self.game.boundaries,'y')
+		if self.health <= 0:
+			self.kill()
 
+	def drawHealth(self):
+		if self.health > .6 * self.fullHealth:
+			color = (0, 255, 0)
+		elif self.health > .3 * self.fullHealth:
+			color = (255,255,0)
+		else:
+			color = (255,0,0)
+		width = int(self.rect.width * self.health/self.fullHealth)
+		self.health_bar = pygame.Rect(0,0,width,7)
+		if self.health < self.fullHealth:
+			pygame.draw.rect(self.image, color, self.health_bar)
+		
+		
 class Projectile (pygame.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
