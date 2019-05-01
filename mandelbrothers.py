@@ -23,6 +23,7 @@ def draw_player_health(surface,x,y,percent):
 		color = (255,0,0)
 	pygame.draw.rect(surface,color,fillRect)
 	pygame.draw.rect(surface,(255,255,255),outlineRect, 2)
+	
 class Game:
 	def __init__(self):
 		os.environ['SDL_VIDEO_CENTERED'] = "1"
@@ -67,7 +68,7 @@ class Game:
 				if self.map.data[row][col] == 'S':
 					Mob(self,col,row,'S')
 		self.camera = Cam(self.map.width, self.map.height)
-					
+
 	def run(self):
 		# game loop
 		self.playing = True
@@ -91,22 +92,22 @@ class Game:
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				self.playing = False
-		
+
 		# add knockback or cooldown for attacks
-		
+
 		# mob gets hit by player
 		hits = pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True)
 		for hit in hits:
 			hit.health -= PROJECTILE_DAMAGE
 			hit.vel = vector(0,0)
-	
+
 	def drawGrid(self):
 		# outlines tiles
 		for x in range(0, WIDTH, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (x, 0), (x, HEIGHT))
 		for y in range(0, HEIGHT, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (0, y), (WIDTH, y))
-	
+
 	def drawScreen(self):
 		# renders the screen
 		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
@@ -121,9 +122,9 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
-		
+
 		pygame.display.flip()
-	
+
 	def initScreen(self):
 		# main menu
 		pass
