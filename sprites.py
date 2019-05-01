@@ -34,16 +34,15 @@ def collision(sprite, group, direction):
 			sprite.vel.y = 0
 			sprite.rect.y = sprite.pos.y
 
-class Player (pygame.sprite.Sprite):
-	
-	def __init__ (self, game, x, y):
+class Player(pygame.sprite.Sprite):
+	def __init__(self, game, x, y):
 		self.groups = game.all_sprites
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		self.image = game.player_img
 		self.rect = self.image.get_rect()
 		self.vel = vector(0,0)
-		self.pos = vector(x,y) * TILESIZE 
+		self.pos = vector(x,y) * TILESIZE
 		self.last_shot = 0
 		self.health = 100
 		self.fullHealth = 100
@@ -113,28 +112,31 @@ class Player (pygame.sprite.Sprite):
 				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (64,64))
 			elif up:
 				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (64,64))
-			
-			# check attacks
-			if keys[pygame.K_z]:
-				type = 'arrow'
-				time = pygame.time.get_ticks()
-				if time - self.last_shot > PROJECTILE_RATE:
-					self.last_shot = time
-					dir = vector(0,0)
-					pos = vector(self.pos)
-					if left:
-						dir = vector(-1,0)
-						pos += (-25,-10)
-					elif right:
-						dir = vector(1,0)
-						pos += (25,10)
-					elif down:
-						dir = vector(0,1)
-						pos += (-10,25)
-					else:
-						dir = vector(0,-1)
-						pos += (10,-25)
-					Projectile(self.game, pos, dir, type)
+
+		# check attacks
+		if keys[pygame.K_z]:
+			type = 'arrow'
+			time = pygame.time.get_ticks()
+			if time - self.last_shot > PROJECTILE_RATE:
+				self.last_shot = time
+				dir = vector(0,0)
+				pos = vector(self.pos)
+				if left:
+					dir = vector(-1,0)
+					# pos += (-25,-10)
+				elif right:
+					dir = vector(1,0)
+					# pos += (25,10)
+				elif down:
+					dir = vector(0,1)
+					# pos += (-10,25)
+				else:
+					dir = vector(0,-1)
+					# pos += (10,-25)
+				Projectile(self.game, pos, dir, type)
+				self.game.sounds['shoot'].play()
+
+		# slow down diagonal movement
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= .7071
 
@@ -150,8 +152,8 @@ class Player (pygame.sprite.Sprite):
 		self.rect.y = self.pos.y
 		collision(self, self.game.boundaries,'y')
 
-class Boundary (pygame.sprite.Sprite):
-	def __init__ (self, game, x, y):
+class Boundary(pygame.sprite.Sprite):
+	def __init__(self, game, x, y):
 		self.groups = game.all_sprites, game.boundaries
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -163,7 +165,7 @@ class Boundary (pygame.sprite.Sprite):
 		self.rect.y = y * TILESIZE
 
 class Mob(pygame.sprite.Sprite):
-	def __init__ (self, game, x, y, type):
+	def __init__(self, game, x, y, type):
 		self.groups = game.all_sprites, game.mobs
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -205,7 +207,8 @@ class Mob(pygame.sprite.Sprite):
 		self.vec = 0
 		self.vel = vector(0,0)
 		self.acc = vector(0,0)
-	
+		self.last_attack = 0
+
 	def update(self):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
 		if self.vec > -90 and self.vec < 90:
@@ -248,10 +251,10 @@ class Mob(pygame.sprite.Sprite):
 		self.health_bar = pygame.Rect(0,0,width,7)
 		if self.health < self.fullHealth:
 			pygame.draw.rect(self.image, color, self.health_bar)
-		
-		
-class Projectile (pygame.sprite.Sprite):
-	def __init__ (self, game, pos, dir, type):
+
+
+class Projectile(pygame.sprite.Sprite):
+	def __init__(self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -273,7 +276,7 @@ class Projectile (pygame.sprite.Sprite):
 		self.rect.y = pos.y
 		self.vel = dir * PROJECTILE_SPEED
 		self.spawn_time = pygame.time.get_ticks()
-	
+
 	def update(self):
 		self.pos += self.vel * self.game.dt
 		self.rect.x = self.pos.x
@@ -282,4 +285,3 @@ class Projectile (pygame.sprite.Sprite):
 			self.kill()
 		if pygame.time.get_ticks() - self.spawn_time > PROJECTILE_LIFETIME:
 			self.kill()
-		

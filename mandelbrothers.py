@@ -22,15 +22,19 @@ def draw_player_health(surface,x,y,percent):
 	else:
 		color = (255,0,0)
 	pygame.draw.rect(surface,color,fillRect)
-	pygame.draw.rect(surface,(255,255,255),outlineRect, 2)
+	pygame.draw.rect(surface,(255,255,255),outlineRect,2)
+
 class Game:
 	def __init__(self):
 		os.environ['SDL_VIDEO_CENTERED'] = "1"
+		pygame.mixer.pre_init(44100, -16, 2, 2048)
+		pygame.mixer.init()
 		pygame.init()
 		self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
 		pygame.display.set_caption(TITLE)
 		self.clock = pygame.time.Clock()
 		pygame.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
+		self.on_main_menu = True
 		self.load_data()
 
 	def load_data(self):
@@ -47,6 +51,11 @@ class Game:
 		self.floor_img = pygame.transform.scale(pygame.image.load('images/floor.png').convert_alpha(), (64,64))
 		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
 		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
+
+		self.load_sounds(['hit', 'shoot'])
+
+	def load_sounds(self, sounds):
+		self.sounds = dict([(name, pygame.mixer.Sound('sounds/' + name + '.wav')) for name in sounds])
 
 	def newGame(self):
 		self.all_sprites = pygame.sprite.Group()
@@ -68,15 +77,34 @@ class Game:
 				if self.map.data[row][col] == 'S':
 					Mob(self,col,row,'S')
 		self.camera = Cam(self.map.width, self.map.height)
-					
+
+	def main_menu(self):
+		font = pygame.font.Font(pygame.font.get_default_font(), 64)
+		surface = font.render('Mandelbrothers', True, (255, 255, 255))
+		rect = surface.get_rect()
+		rect.center = (WIDTH // 2, 100)
+		self.screen.blit(surface, rect)
+
+		font = pygame.font.Font(pygame.font.get_default_font(), 32)
+		surface = font.render('Press space to begin', True, (255, 255, 255))
+		rect = surface.get_rect()
+		rect.center = (WIDTH // 2, 600)
+		self.screen.blit(surface, rect)
+
+		pygame.display.flip()
+
 	def run(self):
 		# game loop
 		self.playing = True
 		while self.playing:
 			self.dt = self.clock.tick(FPS) / 1000
 			self.events()
-			self.update()
-			self.drawScreen()
+
+			if self.on_main_menu:
+				self.main_menu()
+			else:
+				self.update()
+				self.drawScreen()
 
 	def quit(self):
 		pygame.quit()
@@ -85,29 +113,31 @@ class Game:
 	def update(self):
 		self.all_sprites.update()
 		self.camera.update(self.player)
+
 		# player gets hit by mob
-		hits = pygame.sprite.spritecollide(self.player, self.mobs, False)
-		for hit in hits:
-			self.player.health -= hit.damage
+		for hit in pygame.sprite.spritecollide(self.player, self.mobs, False):
+			time = pygame.time.get_ticks()
+			if time - hit.last_attack > ENEMY_COOLDOWN:
+				self.player.health -= hit.damage
+				hit.last_attack = time
+				self.sounds['hit'].play()
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				self.playing = False
-		
-		# add knockback or cooldown for attacks
-		
-		# mob gets hit by player
-		hits = pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True)
-		for hit in hits:
+
+		# mob gets hit by player projectile
+		for hit in pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True):
+			self.sounds['hit'].play()
 			hit.health -= PROJECTILE_DAMAGE
 			hit.vel = vector(0,0)
-	
+
 	def drawGrid(self):
 		# outlines tiles
 		for x in range(0, WIDTH, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (x, 0), (x, HEIGHT))
 		for y in range(0, HEIGHT, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (0, y), (WIDTH, y))
-	
+
 	def drawScreen(self):
 		# renders the screen
 		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
@@ -122,16 +152,8 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
-		
-		pygame.display.flip()
-	
-	def initScreen(self):
-		# main menu
-		pass
 
-	def mainScreen(self):
-		# actual game
-		pass
+		pygame.display.flip()
 
 	def events(self):
 		for event in pygame.event.get():
@@ -140,11 +162,11 @@ class Game:
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_ESCAPE:
 					self.quit()
+				elif event.key == pygame.K_SPACE and self.on_main_menu:
+					self.newGame()
+					self.on_main_menu = False
 
-# here we create the game and run it
-game = Game()
-game.initScreen()
+# create the game and run it
 while True:
-	game.newGame()
+	game = Game()
 	game.run()
-	game.mainScreen()
