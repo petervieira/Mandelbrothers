@@ -185,6 +185,12 @@ class Mob(pygame.sprite.Sprite):
 			self.health = 50
 			self.fullHealth = 50
 			self.damage = 10
+		elif type == 'F':
+			self.image = game.flame_img
+			self.type = 'F'
+			self.health = 75
+			self.fullHealth = 75
+			self.damage = 40
 		else:
 			self.image = game.es_img
 			self.type = "_"

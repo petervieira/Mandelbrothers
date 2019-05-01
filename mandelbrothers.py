@@ -23,7 +23,6 @@ def draw_player_health(surface,x,y,percent):
 		color = (255,0,0)
 	pygame.draw.rect(surface,color,fillRect)
 	pygame.draw.rect(surface,(255,255,255),outlineRect, 2)
-	
 class Game:
 	def __init__(self):
 		os.environ['SDL_VIDEO_CENTERED'] = "1"
@@ -36,7 +35,7 @@ class Game:
 
 	def load_data(self):
 		gameFolder = path.dirname(__file__)
-		pygame.mixer.music.load('music/intro.wav')
+		pygame.mixer.music.load('music/theme.wav')
 		pygame.mixer.music.set_volume(.5)
 		pygame.mixer.music.play(-1, 0.0)
 		self.map = Map(path.join(gameFolder, 'overworld.txt'))
@@ -44,10 +43,9 @@ class Game:
 		self.es_img = pygame.transform.scale(pygame.image.load('images/electric_snake.png').convert_alpha(), (64,64))
 		self.reap_img = pygame.transform.scale(pygame.image.load('images/reaper.png').convert_alpha(), (64,64))
 		self.snail_img = pygame.transform.scale(pygame.image.load('images/snail.png').convert_alpha(), (64,64))
+		self.flame_img = pygame.image.load('images/flame.png').convert_alpha()
 		self.floor_img = pygame.transform.scale(pygame.image.load('images/floor.png').convert_alpha(), (64,64))
 		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
-		#self.boundary_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (64,64))
-		# add another boundary scaled down to allow for smooth passage
 		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
 
 	def newGame(self):
@@ -65,10 +63,12 @@ class Game:
 					Mob(self,col,row,'E')
 				if self.map.data[row][col] == 'R':
 					Mob(self,col,row,'R')
+				if self.map.data[row][col] == 'F':
+					Mob(self,col,row,'F')
 				if self.map.data[row][col] == 'S':
 					Mob(self,col,row,'S')
 		self.camera = Cam(self.map.width, self.map.height)
-
+					
 	def run(self):
 		# game loop
 		self.playing = True
@@ -92,29 +92,29 @@ class Game:
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				self.playing = False
-
+		
 		# add knockback or cooldown for attacks
-
+		
 		# mob gets hit by player
 		hits = pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True)
 		for hit in hits:
 			hit.health -= PROJECTILE_DAMAGE
 			hit.vel = vector(0,0)
-
+	
 	def drawGrid(self):
 		# outlines tiles
 		for x in range(0, WIDTH, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (x, 0), (x, HEIGHT))
 		for y in range(0, HEIGHT, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (0, y), (WIDTH, y))
-
+	
 	def drawScreen(self):
 		# renders the screen
 		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 		self.screen.fill(BACKGROUND_COLOR)
-		for i in range (0, WIDTH//TILESIZE):
-			for j in range (0, HEIGHT//TILESIZE):
-				self.screen.blit(self.floor_img, [i*TILESIZE,j*TILESIZE])
+		#for i in range (0, WIDTH//TILESIZE):
+		#	for j in range (0, HEIGHT//TILESIZE):
+		#		self.screen.blit(self.floor_img, [i*TILESIZE,j*TILESIZE])
 		#self.drawGrid()
 		for sprite in self.all_sprites:
 			if isinstance(sprite, Mob):
@@ -122,9 +122,9 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
-
+		
 		pygame.display.flip()
-
+	
 	def initScreen(self):
 		# main menu
 		pass
