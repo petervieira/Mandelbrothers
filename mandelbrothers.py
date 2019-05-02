@@ -35,6 +35,7 @@ class Game:
 		self.clock = pygame.time.Clock()
 		pygame.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
+		self.paused = False
 		self.load_data()
 
 	def load_data(self):
@@ -103,7 +104,8 @@ class Game:
 			if self.on_main_menu:
 				self.main_menu()
 			else:
-				self.update()
+				if not self.paused:
+					self.update()
 				self.drawScreen()
 
 	def quit(self):
@@ -153,18 +155,32 @@ class Game:
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
 
+		if self.paused:
+			font = pygame.font.Font(pygame.font.get_default_font(), 64)
+			surface = font.render('Paused', True, (255, 255, 255))
+			rect = surface.get_rect()
+			rect.center = (WIDTH // 2, HEIGHT // 2)
+			self.screen.blit(surface, rect)
+
 		pygame.display.flip()
 
 	def events(self):
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				self.quit()
-			if event.type == pygame.KEYDOWN:
+			elif event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_ESCAPE:
 					self.quit()
 				elif event.key == pygame.K_SPACE and self.on_main_menu:
 					self.newGame()
 					self.on_main_menu = False
+				elif event.key == pygame.K_p:
+					if self.paused:
+						pygame.mixer.music.unpause()
+						self.paused = False
+					else:
+						pygame.mixer.music.pause()
+						self.paused = True
 
 # create the game and run it
 while True:
