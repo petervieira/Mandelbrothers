@@ -1,9 +1,9 @@
 import pygame
 import sys
 import os
-from os import path
 from settings import *
 from sprites import *
+from os import path
 from mapp import *
 from minimap import *
 
@@ -23,7 +23,7 @@ def draw_player_health(surface,x,y,percent):
 	else:
 		color = (255,0,0)
 	pygame.draw.rect(surface,color,fillRect)
-	pygame.draw.rect(surface,(255,255,255),outlineRect,2)
+	pygame.draw.rect(surface, (255,255,255), outlineRect, 2)
 
 class Game:
 	def __init__(self):
@@ -45,17 +45,16 @@ class Game:
 		pygame.mixer.music.load('music/theme.wav')
 		pygame.mixer.music.set_volume(.5)
 		pygame.mixer.music.play(-1, 0.0)
-		self.map = Map(path.join(gameFolder, 'overworld.txt'))
-		self.player_img = pygame.transform.scale(pygame.image.load('images/back.png').convert_alpha(), (64,64))
+		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
+		self.map_img = self.map.make_map()
+		self.map_rect = self.map_img.get_rect()
+		self.player_img = pygame.transform.scale(pygame.image.load('images/back.png').convert_alpha(), (48,64))
 		self.es_img = pygame.transform.scale(pygame.image.load('images/electric_snake.png').convert_alpha(), (64,64))
 		self.reap_img = pygame.transform.scale(pygame.image.load('images/reaper.png').convert_alpha(), (64,64))
 		self.snail_img = pygame.transform.scale(pygame.image.load('images/snail.png').convert_alpha(), (64,64))
 		self.flame_img = pygame.image.load('images/flame.png').convert_alpha()
-		self.floor_img = pygame.transform.scale(pygame.image.load('images/floor.png').convert_alpha(), (64,64))
-		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
 		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
-		self.ames_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (128, 128))
-
+		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
 		self.load_sounds(['hit', 'shoot'])
 
 	def load_sounds(self, sounds):
@@ -66,22 +65,35 @@ class Game:
 		self.boundaries = pygame.sprite.Group()
 		self.mobs = pygame.sprite.Group()
 		self.projectiles = pygame.sprite.Group()
-		for row in range(0, len(self.map.data)):
-			for col in range (0, len(self.map.data[row])):
-				if self.map.data[row][col] == ',':
-					Boundary(self,col,row)
-				if self.map.data[row][col] == 'P':
-					self.player = Player(self,col,row)
-				if self.map.data[row][col] == 'E':
-					Mob(self,col,row,'E')
-				if self.map.data[row][col] == 'R':
-					Mob(self,col,row,'R')
-				if self.map.data[row][col] == 'F':
-					Mob(self,col,row,'F')
-				if self.map.data[row][col] == 'S':
-					Mob(self,col,row,'S')
+		#for row in range(0, len(self.map.data)):
+		#	for col in range (0, len(self.map.data[row])):
+		#		if self.map.data[row][col] == ',':
+		#			Boundary(self,col,row)
+		#		if self.map.data[row][col] == 'P':
+		#			self.player = Player(self,col,row)
+		#		if self.map.data[row][col] == 'E':
+		#			Mob(self,col,row,'E')
+		#		if self.map.data[row][col] == 'R':
+		#			Mob(self,col,row,'R')
+		#		if self.map.data[row][col] == 'F':
+		#			Mob(self,col,row,'F')
+		#		if self.map.data[row][col] == 'S':
+		#			Mob(self,col,row,'S')
+		for tile_object in self.map.tmxdata.objects:
+			if tile_object.name == 'player':
+				self.player = Player(self, tile_object.x, tile_object.y)
+			if tile_object.name == 'wall':
+				Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
+			if tile_object.name == 'snake':
+				Mob(self,tile_object.x,tile_object.y,'E')
+			if tile_object.name == 'snail':
+				Mob(self,tile_object.x,tile_object.y,'S')
+			if tile_object.name == 'reaper':
+				Mob(self,tile_object.x,tile_object.y,'R')
+			if tile_object.name == 'flame':
+				Mob(self,tile_object.x,tile_object.y,'F')
 		self.camera = Cam(self.map.width, self.map.height)
-
+	
 	def main_menu(self):
 		font = pygame.font.Font(pygame.font.get_default_font(), 64)
 		surface = font.render('Mandelbrothers', True, (255, 255, 255))
@@ -95,9 +107,7 @@ class Game:
 		rect.center = (WIDTH // 2, 600)
 		self.screen.blit(surface, rect)
 
-		self.screen.blit(self.ames_img, [WIDTH // 2 - 64, HEIGHT // 2 - 64])
-
-		pygame.display.flip()
+		pygame.display.flip()	
 
 	def run(self):
 		# game loop
@@ -105,7 +115,6 @@ class Game:
 		while self.playing:
 			self.dt = self.clock.tick(FPS) / 1000
 			self.events()
-
 			if self.on_main_menu:
 				self.main_menu()
 			else:
@@ -120,7 +129,7 @@ class Game:
 	def update(self):
 		self.all_sprites.update()
 		self.camera.update(self.player)
-
+		
 		# player gets hit by mob
 		for hit in pygame.sprite.spritecollide(self.player, self.mobs, False):
 			time = pygame.time.get_ticks()
@@ -131,24 +140,25 @@ class Game:
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				self.playing = False
-
-		# mob gets hit by player projectile
+		
+		# mob gets hit by player
 		for hit in pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True):
 			self.sounds['hit'].play()
 			hit.health -= PROJECTILE_DAMAGE
 			hit.vel = vector(0,0)
-
+	
 	def drawGrid(self):
 		# outlines tiles
 		for x in range(0, WIDTH, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (x, 0), (x, HEIGHT))
 		for y in range(0, HEIGHT, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (0, y), (WIDTH, y))
-
+	
 	def drawScreen(self):
 		# renders the screen
 		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-		self.screen.fill(BACKGROUND_COLOR)
+		#self.screen.fill(BACKGROUND_COLOR)
+		self.screen.blit(self.map_img, self.camera.callRect(self.map_rect))
 		#for i in range (0, WIDTH//TILESIZE):
 		#	for j in range (0, HEIGHT//TILESIZE):
 		#		self.screen.blit(self.floor_img, [i*TILESIZE,j*TILESIZE])
@@ -159,16 +169,14 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
-
 		self.minimap.draw(self.screen, self.boundaries, self.mobs, self.player)
-
 		if self.paused:
 			font = pygame.font.Font(pygame.font.get_default_font(), 64)
 			surface = font.render('Paused', True, (255, 255, 255))
 			rect = surface.get_rect()
 			rect.center = (WIDTH // 2, HEIGHT // 2)
 			self.screen.blit(surface, rect)
-
+		
 		pygame.display.flip()
 
 	def events(self):
