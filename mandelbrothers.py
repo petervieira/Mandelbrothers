@@ -1,10 +1,11 @@
 import pygame
 import sys
 import os
+from os import path
 from settings import *
 from sprites import *
-from os import path
 from mapp import *
+from minimap import *
 
 # HUD
 def draw_player_health(surface,x,y,percent):
@@ -36,6 +37,7 @@ class Game:
 		pygame.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
+		self.minimap = Minimap()
 		self.load_data()
 
 	def load_data(self):
@@ -52,6 +54,7 @@ class Game:
 		self.floor_img = pygame.transform.scale(pygame.image.load('images/floor.png').convert_alpha(), (64,64))
 		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
 		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
+		self.ames_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (128, 128))
 
 		self.load_sounds(['hit', 'shoot'])
 
@@ -91,6 +94,8 @@ class Game:
 		rect = surface.get_rect()
 		rect.center = (WIDTH // 2, 600)
 		self.screen.blit(surface, rect)
+
+		self.screen.blit(self.ames_img, [WIDTH // 2 - 64, HEIGHT // 2 - 64])
 
 		pygame.display.flip()
 
@@ -154,6 +159,8 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
+
+		self.minimap.draw(self.screen, self.boundaries, self.mobs, self.player)
 
 		if self.paused:
 			font = pygame.font.Font(pygame.font.get_default_font(), 64)

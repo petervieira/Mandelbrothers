@@ -114,11 +114,10 @@ class Player(pygame.sprite.Sprite):
 				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (64,64))
 
 		# check attacks
-		if keys[pygame.K_z]:
+		if keys[pygame.K_SPACE]:
 			type = 'arrow'
-			time = pygame.time.get_ticks()
-			if time - self.last_shot > PROJECTILE_RATE:
-				self.last_shot = time
+			if self.last_shot > PROJECTILE_RATE:
+				self.last_shot = 0
 				dir = vector(0,0)
 				pos = vector(self.pos)
 				if left:
@@ -151,6 +150,7 @@ class Player(pygame.sprite.Sprite):
 		collision(self, self.game.boundaries,'x')
 		self.rect.y = self.pos.y
 		collision(self, self.game.boundaries,'y')
+		self.last_shot += self.game.dt * 1000
 
 class Boundary(pygame.sprite.Sprite):
 	def __init__(self, game, x, y):
@@ -275,13 +275,14 @@ class Projectile(pygame.sprite.Sprite):
 		self.rect.x = pos.x
 		self.rect.y = pos.y
 		self.vel = dir * PROJECTILE_SPEED
-		self.spawn_time = pygame.time.get_ticks()
+		self.lifetime = 0
 
 	def update(self):
 		self.pos += self.vel * self.game.dt
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
+		self.lifetime += self.game.dt * 1000
 		if pygame.sprite.spritecollideany(self, self.game.boundaries):
 			self.kill()
-		if pygame.time.get_ticks() - self.spawn_time > PROJECTILE_LIFETIME:
+		if self.lifetime > PROJECTILE_LIFETIME:
 			self.kill()
