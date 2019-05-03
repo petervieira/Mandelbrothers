@@ -12,7 +12,7 @@ class Map:
 		self.tileheight = len(self.data)
 		self.width = self.tilewidth * TILESIZE
 		self.height = self.tileheight * TILESIZE
-
+		
 class TiledMap:
 	def __init__(self, filename):
 		tiledmap = pytmx.load_pygame(filename, pixelalpha=True)
@@ -40,18 +40,18 @@ class Cam:
 		self.width = width
 		self.height = height
 		self.camera = pygame.Rect(0,0,width,height)
-
+	
 	def call(self, entity):
 		# shifts the rectangular camera by 64 pixels
 		return entity.rect.move(self.camera.topleft)
-
+	
 	def callRect(self, rect):
 		return rect.move(self.camera.topleft)
-
+	
 	def update(self, entity):
 		x = -entity.rect.x + int(WIDTH / 2) - 32
 		y = -entity.rect.y + int(HEIGHT / 2)
-
+		
 		x = min(0, x)
 		y = min(0, y)
 		x = max(WIDTH - self.width, x)

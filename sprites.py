@@ -5,10 +5,10 @@ from os import path
 
 vector = pygame.math.Vector2
 walkcount = 0
-walkRight = [pygame.transform.scale(pygame.image.load('images/side2_walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/side2_walk.png'), (64,64))]
-walkLeft = [pygame.transform.scale(pygame.image.load('images/side_walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/side_walk.png'), (64,64))]
-walkUp = [pygame.transform.scale(pygame.image.load('images/walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/walk.png'), (64,64))]
-walkDown = [pygame.transform.scale(pygame.image.load('images/front_walk2.png'), (64,64)), pygame.transform.scale(pygame.image.load('images/front_walk.png'), (64,64))]
+walkRight = [pygame.transform.scale(pygame.image.load('images/side2_walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/side2_walk.png'), (48,64))]
+walkLeft = [pygame.transform.scale(pygame.image.load('images/side_walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/side_walk.png'), (48,64))]
+walkUp = [pygame.transform.scale(pygame.image.load('images/walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/walk.png'), (48,64))]
+walkDown = [pygame.transform.scale(pygame.image.load('images/front_walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/front_walk.png'), (48,64))]
 left = False
 right = False
 down = False
@@ -36,14 +36,14 @@ def collision(sprite, group, direction):
 			sprite.rect.y = sprite.pos.y
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, game, x, y):
+	def __init__ (self, game, x, y):
 		self.groups = game.all_sprites
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		self.image = game.player_img
 		self.rect = self.image.get_rect()
 		self.vel = vector(0,0)
-		self.pos = vector(x,y) * TILESIZE
+		self.pos = vector(x,y)
 		self.last_shot = 0
 		self.health = 100
 		self.fullHealth = 100
@@ -107,37 +107,34 @@ class Player(pygame.sprite.Sprite):
 			up = True
 		else:
 			if left:
-				self.image = pygame.transform.scale(pygame.image.load('images/side.png'), (64,64))
+				self.image = pygame.transform.scale(pygame.image.load('images/side.png'), (48,64))
 			elif right:
-				self.image = pygame.transform.scale(pygame.image.load('images/side2.png'), (64,64))
+				self.image = pygame.transform.scale(pygame.image.load('images/side2.png'), (48,64))
 			elif down:
-				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (64,64))
+				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (48,64))
 			elif up:
-				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (64,64))
+				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (48,64))
 
-		# check attacks
-		if keys[pygame.K_SPACE]:
-			type = 'arrow'
-			if self.last_shot > PROJECTILE_RATE:
-				self.last_shot = 0
-				dir = vector(0,0)
-				pos = vector(self.pos)
-				if left:
-					dir = vector(-1,0)
-					# pos += (-25,-10)
-				elif right:
-					dir = vector(1,0)
-					# pos += (25,10)
-				elif down:
-					dir = vector(0,1)
-					# pos += (-10,25)
-				else:
-					dir = vector(0,-1)
-					# pos += (10,-25)
-				Projectile(self.game, pos, dir, type)
-				self.game.sounds['shoot'].play()
-
-		# slow down diagonal movement
+			# check attacks
+			if keys[pygame.K_z]:
+				type = 'arrow'
+				if self.last_shot > PROJECTILE_RATE:
+					self.last_shot = 0
+					dir = vector(0,0)
+					pos = vector(self.pos)
+					if left:
+						dir = vector(-1,0)
+						pos += (-25,-10)
+					elif right:
+						dir = vector(1,0)
+						pos += (25,10)
+					elif down:
+						dir = vector(0,1)
+						pos += (-10,25)
+					else:
+						dir = vector(0,-1)
+						pos += (10,-25)
+					Projectile(self.game, pos, dir, type)
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= .7071
 
@@ -154,20 +151,21 @@ class Player(pygame.sprite.Sprite):
 		collision(self, self.game.boundaries,'y')
 		self.last_shot += self.game.dt * 1000
 
-class Boundary(pygame.sprite.Sprite):
-	def __init__(self, game, x, y):
-		self.groups = game.all_sprites, game.boundaries
+class Obstacle (pygame.sprite.Sprite):
+	def __init__ (self, game, x, y, w, h):
+		self.groups = game.boundaries
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = game.boundary_img
+		self.rect = pygame.Rect(x,y,w,h)
 		self.x = x
 		self.y = y
-		self.rect = self.image.get_rect()
-		self.rect.x = x * TILESIZE
-		self.rect.y = y * TILESIZE
+		self.w = w
+		self.h = h
+		self.rect.x = x
+		self.rect.y = y
 
 class Mob(pygame.sprite.Sprite):
-	def __init__(self, game, x, y, type):
+	def __init__ (self, game, x, y, type):
 		self.groups = game.all_sprites, game.mobs
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -177,39 +175,51 @@ class Mob(pygame.sprite.Sprite):
 			self.health = 100
 			self.fullHealth = 100
 			self.damage = 30
+			self.speed = 100
 		elif type == 'R':
 			self.image = game.reap_img
 			self.type = 'R'
 			self.health = 150
 			self.fullHealth = 150
 			self.damage = 50
+			self.speed = 200
 		elif type == 'S':
 			self.image = game.snail_img
 			self.type = 'S'
 			self.health = 50
 			self.fullHealth = 50
-			self.damage = 10
+			self.damage = 5
+			self.speed = 10
 		elif type == 'F':
 			self.image = game.flame_img
 			self.type = 'F'
 			self.health = 75
 			self.fullHealth = 75
-			self.damage = 40
+			self.damage = 80
+			self.speed = 50
 		else:
 			self.image = game.es_img
 			self.type = "_"
 			self.health = 100
 			self.fullHealth = 100
 			self.damage = 20
+			self.speed = 100
 			# temporary
 		self.rect = self.image.get_rect()
-		self.pos = vector(x,y) * TILESIZE
+		self.pos = vector(x,y)
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
 		self.vec = 0
 		self.vel = vector(0,0)
 		self.acc = vector(0,0)
 		self.last_attack = 0
+
+	def avoid_mobs(self):
+		for mob in self.game.mobs:
+			if mob != self:
+				dist = self.pos - mob.pos
+				if 0 < dist.length() < MOB_RADIUS:
+					self.acc += dist.normalize()
 
 	def update(self):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
@@ -231,7 +241,9 @@ class Mob(pygame.sprite.Sprite):
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
 		if abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y) < 500:
-			self.acc = vector(MOB_SPEED, 0).rotate(-self.vec)
+			self.acc = vector(1, 0).rotate(-self.vec)
+			self.avoid_mobs()
+			self.acc.scale_to_length(self.speed)
 			self.acc += self.vel * -1
 			self.vel += self.acc * self.game.dt
 			self.pos += self.vel * self.game.dt + .5 * self.acc * self.game.dt ** 2
@@ -256,7 +268,7 @@ class Mob(pygame.sprite.Sprite):
 			pygame.draw.rect(self.image, color, self.health_bar)
 
 class Projectile(pygame.sprite.Sprite):
-	def __init__(self, game, pos, dir, type):
+	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
