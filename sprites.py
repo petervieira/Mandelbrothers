@@ -1,5 +1,4 @@
 import pygame
-import random
 from settings import *
 from os import path
 
@@ -114,7 +113,7 @@ class Player(pygame.sprite.Sprite):
 				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (48,64))
 			elif up:
 				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (48,64))
-
+			
 			# check attacks
 			if keys[pygame.K_z]:
 				type = 'arrow'
@@ -135,6 +134,7 @@ class Player(pygame.sprite.Sprite):
 						dir = vector(0,-1)
 						pos += (10,-25)
 					Projectile(self.game, pos, dir, type)
+					self.game.sounds['shoot'].play()
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= .7071
 
@@ -213,7 +213,7 @@ class Mob(pygame.sprite.Sprite):
 		self.vel = vector(0,0)
 		self.acc = vector(0,0)
 		self.last_attack = 0
-
+	
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
 			if mob != self:
@@ -266,7 +266,8 @@ class Mob(pygame.sprite.Sprite):
 		self.health_bar = pygame.Rect(0,0,width,7)
 		if self.health < self.fullHealth:
 			pygame.draw.rect(self.image, color, self.health_bar)
-
+		
+		
 class Projectile(pygame.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
@@ -290,7 +291,7 @@ class Projectile(pygame.sprite.Sprite):
 		self.rect.y = pos.y
 		self.vel = dir * PROJECTILE_SPEED
 		self.lifetime = 0
-
+	
 	def update(self):
 		self.pos += self.vel * self.game.dt
 		self.rect.x = self.pos.x

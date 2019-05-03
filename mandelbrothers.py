@@ -37,7 +37,7 @@ class Game:
 		pygame.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
-		self.minimap = Minimap(self)
+		self.minimap = Minimap()
 		self.load_data()
 
 	def load_data(self):
@@ -48,16 +48,14 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.flame_img = pygame.image.load('images/flame.png').convert_alpha()
-		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
-		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
 		self.player_img = pygame.transform.scale(pygame.image.load('images/back.png').convert_alpha(), (48,64))
 		self.es_img = pygame.transform.scale(pygame.image.load('images/electric_snake.png').convert_alpha(), (64,64))
 		self.reap_img = pygame.transform.scale(pygame.image.load('images/reaper.png').convert_alpha(), (64,64))
 		self.snail_img = pygame.transform.scale(pygame.image.load('images/snail.png').convert_alpha(), (64,64))
-		self.ames_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (128, 128))
+		self.flame_img = pygame.image.load('images/flame.png').convert_alpha()
+		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
+		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
 		self.coin_img = pygame.transform.scale(pygame.image.load('images/coin.png').convert_alpha(), (32, 32))
-
 		self.load_sounds(['hit', 'shoot', 'coin'])
 
 	def load_sounds(self, sounds):
@@ -96,7 +94,7 @@ class Game:
 			if tile_object.name == 'flame':
 				Mob(self,tile_object.x,tile_object.y,'F')
 		self.camera = Cam(self.map.width, self.map.height)
-
+	
 	def main_menu(self):
 		font = pygame.font.Font(pygame.font.get_default_font(), 64)
 		surface = font.render('Mandelbrothers', True, (255, 255, 255))
@@ -110,7 +108,7 @@ class Game:
 		rect.center = (WIDTH // 2, 600)
 		self.screen.blit(surface, rect)
 
-		pygame.display.flip()
+		pygame.display.flip()	
 
 	def run(self):
 		# game loop
@@ -132,7 +130,7 @@ class Game:
 	def update(self):
 		self.all_sprites.update()
 		self.camera.update(self.player)
-
+		
 		# player gets hit by mob
 		for hit in pygame.sprite.spritecollide(self.player, self.mobs, False):
 			time = pygame.time.get_ticks()
@@ -143,20 +141,20 @@ class Game:
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				self.playing = False
-
+		
 		# mob gets hit by player
 		for hit in pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True):
 			self.sounds['hit'].play()
 			hit.health -= PROJECTILE_DAMAGE
 			hit.vel = vector(0,0)
-
+	
 	def drawGrid(self):
 		# outlines tiles
 		for x in range(0, WIDTH, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (x, 0), (x, HEIGHT))
 		for y in range(0, HEIGHT, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (0, y), (WIDTH, y))
-
+	
 	def drawScreen(self):
 		# renders the screen
 		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
@@ -169,28 +167,22 @@ class Game:
 		for sprite in self.all_sprites:
 			if isinstance(sprite, Mob):
 				sprite.drawHealth()
-			if not isinstance(sprite, Player):
-				self.screen.blit(sprite.image, self.camera.call(sprite))
-
-		self.screen.blit(self.player.image, self.camera.call(self.player))
+			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
-
-		self.minimap.draw()
-
+		self.minimap.draw(self.screen, self.boundaries, self.mobs, self.player)
 		font = pygame.font.Font(pygame.font.get_default_font(), 32)
 		surface = font.render(f'Money: {self.player.money}', True, (255, 255, 255))
 		rect = surface.get_rect()
 		rect.topleft = (10, 10)
 		self.screen.blit(surface, rect)
-
 		if self.paused:
 			font = pygame.font.Font(pygame.font.get_default_font(), 64)
 			surface = font.render('Paused', True, (255, 255, 255))
 			rect = surface.get_rect()
 			rect.center = (WIDTH // 2, HEIGHT // 2)
 			self.screen.blit(surface, rect)
-
+		
 		pygame.display.flip()
 
 	def events(self):
@@ -207,7 +199,7 @@ class Game:
 					if self.paused:
 						pygame.mixer.music.unpause()
 						self.paused = False
-					elif not self.on_main_menu:
+					else:
 						pygame.mixer.music.pause()
 						self.paused = True
 
