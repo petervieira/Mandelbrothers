@@ -1,14 +1,14 @@
-import pygame
+import pygame as pg
 from random import randint
 from settings import *
 from os import path
 
-vector = pygame.math.Vector2
+vector = pg.math.Vector2
 
 def collision(sprite, group, direction):
 	# also positions the character to press against the wall and remove any space
 	if direction == 'x':
-		collide = pygame.sprite.spritecollide(sprite, group, False)
+		collide = pg.sprite.spritecollide(sprite, group, False)
 		if collide:
 			if sprite.vel.x > 0:
 				sprite.pos.x = collide[0].rect.left - sprite.rect.width
@@ -17,7 +17,7 @@ def collision(sprite, group, direction):
 			sprite.vel.x = 0
 			sprite.rect.x = sprite.pos.x
 	if direction == 'y':
-		collide = pygame.sprite.spritecollide(sprite, group, False)
+		collide = pg.sprite.spritecollide(sprite, group, False)
 		if collide:
 			if sprite.vel.y > 0:
 				sprite.pos.y = collide[0].rect.top - sprite.rect.height
@@ -26,10 +26,10 @@ def collision(sprite, group, direction):
 			sprite.vel.y = 0
 			sprite.rect.y = sprite.pos.y
 
-class Player(pygame.sprite.Sprite):
+class Player(pg.sprite.Sprite):
 	def __init__ (self, game, x, y):
 		self.groups = game.all_sprites
-		pygame.sprite.Sprite.__init__(self, self.groups)
+		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		self.image = game.sprites['back']
 		self.rect = self.image.get_rect()
@@ -51,10 +51,10 @@ class Player(pygame.sprite.Sprite):
 
 	def getKeys(self):
 		self.vel = vector(0,0)
-		keys = pygame.key.get_pressed()
-		if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+		keys = pg.key.get_pressed()
+		if keys[pg.K_a] or keys[pg.K_LEFT]:
 			self.image = self.walkLeft[self.walkcount//12]
-			if keys[pygame.K_LSHIFT]:
+			if keys[pg.K_LSHIFT]:
 				self.vel.x = -PLAYER_SPEED * 1.5
 				self.walkcount += 2
 			else:
@@ -64,9 +64,9 @@ class Player(pygame.sprite.Sprite):
 			self.right = False
 			self.down = False
 			self.up = False
-		elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+		elif keys[pg.K_d] or keys[pg.K_RIGHT]:
 			self.image = self.walkRight[self.walkcount//12]
-			if keys[pygame.K_LSHIFT]:
+			if keys[pg.K_LSHIFT]:
 				self.vel.x = PLAYER_SPEED * 1.5
 				self.walkcount += 2
 			else:
@@ -76,9 +76,9 @@ class Player(pygame.sprite.Sprite):
 			self.right = True
 			self.down = False
 			self.up = False
-		elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
+		elif keys[pg.K_s] or keys[pg.K_DOWN]:
 			self.image = self.walkDown[self.walkcount//12]
-			if keys[pygame.K_LSHIFT]:
+			if keys[pg.K_LSHIFT]:
 				self.vel.y = PLAYER_SPEED * 1.5
 				self.walkcount += 2
 			else:
@@ -88,9 +88,9 @@ class Player(pygame.sprite.Sprite):
 			self.right = False
 			self.down = True
 			self.up = False
-		elif keys[pygame.K_w] or keys[pygame.K_UP]:
+		elif keys[pg.K_w] or keys[pg.K_UP]:
 			self.image = self.walkUp[self.walkcount//12]
-			if keys[pygame.K_LSHIFT]:
+			if keys[pg.K_LSHIFT]:
 				self.vel.y = -PLAYER_SPEED * 1.5
 				self.walkcount += 2
 			else:
@@ -111,7 +111,7 @@ class Player(pygame.sprite.Sprite):
 				self.image = self.game.sprites['back']
 
 		# check attacks
-		if keys[pygame.K_SPACE] and not keys[pygame.K_LSHIFT]:
+		if keys[pg.K_SPACE] and not keys[pg.K_LSHIFT]:
 			type = 'arrow'
 			if self.last_shot > PROJECTILE_RATE:
 				self.last_shot = 0
@@ -146,12 +146,12 @@ class Player(pygame.sprite.Sprite):
 		collision(self, self.game.boundaries,'y')
 		self.last_shot += self.game.dt * 1000
 
-class Obstacle (pygame.sprite.Sprite):
+class Obstacle (pg.sprite.Sprite):
 	def __init__ (self, game, x, y, w, h):
 		self.groups = game.boundaries
-		pygame.sprite.Sprite.__init__(self, self.groups)
+		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.rect = pygame.Rect(x,y,w,h)
+		self.rect = pg.Rect(x,y,w,h)
 		self.x = x
 		self.y = y
 		self.w = w
@@ -159,10 +159,10 @@ class Obstacle (pygame.sprite.Sprite):
 		self.rect.x = x
 		self.rect.y = y
 
-class Mob(pygame.sprite.Sprite):
+class Mob(pg.sprite.Sprite):
 	def __init__ (self, game, x, y, type):
 		self.groups = game.all_sprites, game.mobs
-		pygame.sprite.Sprite.__init__(self, self.groups)
+		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		self.type = type
 		if type == 'E':
@@ -216,9 +216,9 @@ class Mob(pygame.sprite.Sprite):
 
 		# rotate enemy based on position relative to player
 		if self.vec > -90 and self.vec < 90:
-			self.image = pygame.transform.flip(self.default_image, True, False)
+			self.image = pg.transform.flip(self.default_image, True, False)
 		elif self.vec < -90 or self.vec > 90:
-			self.image = pygame.transform.flip(self.default_image, False, False)
+			self.image = pg.transform.flip(self.default_image, False, False)
 
 		self.rect = self.image.get_rect()
 		self.rect.x = self.pos.x
@@ -249,21 +249,21 @@ class Mob(pygame.sprite.Sprite):
 		else:
 			color = (255,0,0)
 		width = int(self.rect.width * self.health/self.fullHealth)
-		self.health_bar = pygame.Rect(0,0,width,7)
+		self.health_bar = pg.Rect(0,0,width,7)
 		if self.health < self.fullHealth:
-			pygame.draw.rect(self.image, color, self.health_bar)
+			pg.draw.rect(self.image, color, self.health_bar)
 
-class Projectile(pygame.sprite.Sprite):
+class Projectile(pg.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
-		pygame.sprite.Sprite.__init__(self, self.groups)
+		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		if type == 'arrow':
 			self.image = game.sprites['arrow']
 			if dir.y == 1:
-				self.image = pygame.transform.rotate(self.image, 180)
+				self.image = pg.transform.rotate(self.image, 180)
 			else:
-				self.image = pygame.transform.rotate(self.image, -90 * dir.x)
+				self.image = pg.transform.rotate(self.image, -90 * dir.x)
 
 		self.rect = self.image.get_rect()
 		self.pos = vector(pos)
@@ -277,15 +277,15 @@ class Projectile(pygame.sprite.Sprite):
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
 		self.lifetime += self.game.dt * 1000
-		if pygame.sprite.spritecollideany(self, self.game.boundaries):
+		if pg.sprite.spritecollideany(self, self.game.boundaries):
 			self.kill()
 		if self.lifetime > PROJECTILE_LIFETIME:
 			self.kill()
 
-class Coin(pygame.sprite.Sprite):
+class Coin(pg.sprite.Sprite):
 	def __init__(self, game, pos):
 		self.groups = game.all_sprites
-		pygame.sprite.Sprite.__init__(self, self.groups)
+		pg.sprite.Sprite.__init__(self, self.groups)
 		self.pos = pos
 		self.game = game
 		self.image = game.sprites['coin']
@@ -293,7 +293,7 @@ class Coin(pygame.sprite.Sprite):
 		self.rect.center = pos
 
 	def update(self):
-		if pygame.sprite.collide_rect(self, self.game.player):
+		if pg.sprite.collide_rect(self, self.game.player):
 			self.game.player.money += 1
 			self.game.sounds['coin'].play()
 			self.kill()

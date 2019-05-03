@@ -1,4 +1,4 @@
-import pygame
+import pygame as pg
 import pytmx
 from settings import *
 
@@ -12,7 +12,7 @@ class Map:
 		self.tileheight = len(self.data)
 		self.width = self.tilewidth * TILESIZE
 		self.height = self.tileheight * TILESIZE
-		
+
 class TiledMap:
 	def __init__(self, filename):
 		tiledmap = pytmx.load_pygame(filename, pixelalpha=True)
@@ -30,7 +30,7 @@ class TiledMap:
 						surface.blit(tile, (x * self.tmxdata.tilewidth, y * self.tmxdata.tileheight))
 
 	def make_map(self):
-		temp_surface = pygame.Surface((self.width, self.height))
+		temp_surface = pg.Surface((self.width, self.height))
 		self.render(temp_surface)
 		return temp_surface
 
@@ -39,21 +39,21 @@ class Cam:
 	def __init__(self, width, height):
 		self.width = width
 		self.height = height
-		self.camera = pygame.Rect(0,0,width,height)
-	
+		self.camera = pg.Rect(0,0,width,height)
+
 	def call(self, entity):
 		# shifts the rectangular camera by 64 pixels
 		return entity.rect.move(self.camera.topleft)
-	
+
 	def callRect(self, rect):
 		return rect.move(self.camera.topleft)
-	
+
 	def update(self, entity):
 		x = -entity.rect.x + int(WIDTH / 2) - 32
 		y = -entity.rect.y + int(HEIGHT / 2)
-		
+
 		x = min(0, x)
 		y = min(0, y)
 		x = max(WIDTH - self.width, x)
 		y = max(HEIGHT - self.height, y)
-		self.camera = pygame.Rect(x, y, self.width, self.height)
+		self.camera = pg.Rect(x, y, self.width, self.height)
