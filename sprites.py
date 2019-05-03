@@ -135,6 +135,7 @@ class Player(pygame.sprite.Sprite):
 					dir = vector(0,-1)
 					pos += (10,-25)
 				Projectile(self.game, pos, dir, type)
+				self.game.sounds['shoot'].play()
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= .7071
 
