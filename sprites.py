@@ -1,17 +1,9 @@
 import pygame
+from random import randint
 from settings import *
 from os import path
 
 vector = pygame.math.Vector2
-walkcount = 0
-walkRight = [pygame.transform.scale(pygame.image.load('images/side2_walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/side2_walk.png'), (48,64))]
-walkLeft = [pygame.transform.scale(pygame.image.load('images/side_walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/side_walk.png'), (48,64))]
-walkUp = [pygame.transform.scale(pygame.image.load('images/walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/walk.png'), (48,64))]
-walkDown = [pygame.transform.scale(pygame.image.load('images/front_walk2.png'), (48,64)), pygame.transform.scale(pygame.image.load('images/front_walk.png'), (48,64))]
-left = False
-right = False
-down = False
-up = False
 
 def collision(sprite, group, direction):
 	# also positions the character to press against the wall and remove any space
@@ -39,7 +31,7 @@ class Player(pygame.sprite.Sprite):
 		self.groups = game.all_sprites
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = game.player_img
+		self.image = game.sprites['back']
 		self.rect = self.image.get_rect()
 		self.vel = vector(0,0)
 		self.pos = vector(x,y)
@@ -47,87 +39,91 @@ class Player(pygame.sprite.Sprite):
 		self.health = 100
 		self.fullHealth = 100
 		self.money = 0
+		self.walkcount = 0
+		self.left = False
+		self.right = False
+		self.down = False
+		self.up = False
+		self.walkRight = [game.sprites['side2_walk2'], game.sprites['side2_walk']]
+		self.walkLeft = [game.sprites['side_walk2'], game.sprites['side_walk']]
+		self.walkUp = [game.sprites['walk2'], game.sprites['walk']]
+		self.walkDown = [game.sprites['front_walk2'], game.sprites['front_walk']]
 
 	def getKeys(self):
-		global walkcount
-		global left
-		global right
-		global down
-		global up
 		self.vel = vector(0,0)
 		keys = pygame.key.get_pressed()
 		if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-			self.image = walkLeft[walkcount//12].convert_alpha()
+			self.image = self.walkLeft[self.walkcount//12]
 			if keys[pygame.K_LSHIFT]:
 				self.vel.x = -PLAYER_SPEED * 1.5
-				walkcount += 2
+				self.walkcount += 2
 			else:
 				self.vel.x = -PLAYER_SPEED
-				walkcount += 1
-			left = True
-			right = False
-			down = False
-			up = False
+				self.walkcount += 1
+			self.left = True
+			self.right = False
+			self.down = False
+			self.up = False
 		elif keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-			self.image = walkRight[walkcount//12].convert_alpha()
+			self.image = self.walkRight[self.walkcount//12]
 			if keys[pygame.K_LSHIFT]:
 				self.vel.x = PLAYER_SPEED * 1.5
-				walkcount += 2
+				self.walkcount += 2
 			else:
 				self.vel.x = PLAYER_SPEED
-				walkcount += 1
-			left = False
-			right = True
-			down = False
-			up = False
+				self.walkcount += 1
+			self.left = False
+			self.right = True
+			self.down = False
+			self.up = False
 		elif keys[pygame.K_s] or keys[pygame.K_DOWN]:
-			self.image = walkDown[walkcount//12].convert_alpha()
+			self.image = self.walkDown[self.walkcount//12]
 			if keys[pygame.K_LSHIFT]:
 				self.vel.y = PLAYER_SPEED * 1.5
-				walkcount += 2
+				self.walkcount += 2
 			else:
 				self.vel.y = PLAYER_SPEED
-				walkcount += 1
-			left = False
-			right = False
-			down = True
-			up = False
+				self.walkcount += 1
+			self.left = False
+			self.right = False
+			self.down = True
+			self.up = False
 		elif keys[pygame.K_w] or keys[pygame.K_UP]:
-			self.image = walkUp[walkcount//12].convert_alpha()
+			self.image = self.walkUp[self.walkcount//12]
 			if keys[pygame.K_LSHIFT]:
 				self.vel.y = -PLAYER_SPEED * 1.5
-				walkcount += 2
+				self.walkcount += 2
 			else:
 				self.vel.y = -PLAYER_SPEED
-				walkcount += 1
-			left = False
-			right = False
-			down = False
-			up = True
+				self.walkcount += 1
+			self.left = False
+			self.right = False
+			self.down = False
+			self.up = True
 		else:
-			if left:
-				self.image = pygame.transform.scale(pygame.image.load('images/side.png'), (48,64))
-			elif right:
-				self.image = pygame.transform.scale(pygame.image.load('images/side2.png'), (48,64))
-			elif down:
-				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (48,64))
-			elif up:
-				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (48,64))
+			if self.left:
+				self.image = self.game.sprites['side']
+			elif self.right:
+				self.image = self.game.sprites['side2']
+			elif self.down:
+				self.image = self.game.sprites['front']
+			elif self.up:
+				self.image = self.game.sprites['back']
 
 		# check attacks
-		if keys[pygame.K_z] and not keys[pygame.K_LSHIFT]:
+		if keys[pygame.K_SPACE] and not keys[pygame.K_LSHIFT]:
 			type = 'arrow'
 			if self.last_shot > PROJECTILE_RATE:
 				self.last_shot = 0
 				dir = vector(0,0)
 				pos = vector(self.pos)
-				if left:
+				if self.left:
 					dir = vector(-1,0)
 					pos += (-40,10)
-				elif right:
+				elif self.right:
 					dir = vector(1,0)
 					pos += (40,40)
-				elif down:
+				elif self.down:
 					dir = vector(0,1)
 					pos += (10,40)
 				else:
@@ -139,9 +135,8 @@ class Player(pygame.sprite.Sprite):
 			self.vel *= .7071
 
 	def update(self):
-		global walkcount
-		if walkcount >= 24:
-			walkcount = 0
+		if self.walkcount >= 24:
+			self.walkcount = 0
 		self.getKeys()
 		self.pos.x += self.vel.x * self.game.dt
 		self.pos.y += self.vel.y * self.game.dt
@@ -169,42 +164,37 @@ class Mob(pygame.sprite.Sprite):
 		self.groups = game.all_sprites, game.mobs
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
+		self.type = type
 		if type == 'E':
-			self.image = game.es_img
-			self.type = 'E'
+			self.image = game.sprites['electric_snake']
 			self.health = 100
 			self.fullHealth = 100
 			self.damage = 30
 			self.speed = 100
+			self.coins = 1
 		elif type == 'R':
-			self.image = game.reap_img
-			self.type = 'R'
+			self.image = game.sprites['reaper']
 			self.health = 150
 			self.fullHealth = 150
 			self.damage = 50
 			self.speed = 200
+			self.coins = 2
 		elif type == 'S':
-			self.image = game.snail_img
-			self.type = 'S'
+			self.image = game.sprites['snail']
 			self.health = 50
 			self.fullHealth = 50
 			self.damage = 5
 			self.speed = 10
+			self.coins = 0
 		elif type == 'F':
-			self.image = game.flame_img
-			self.type = 'F'
+			self.image = game.sprites['flame']
 			self.health = 175
 			self.fullHealth = 175
 			self.damage = 80
 			self.speed = 50
-		else:
-			self.image = game.es_img
-			self.type = "_"
-			self.health = 100
-			self.fullHealth = 100
-			self.damage = 20
-			self.speed = 100
-			# temporary
+			self.coins = 3
+
+		self.default_image = self.image
 		self.rect = self.image.get_rect()
 		self.pos = vector(x,y)
 		self.rect.x = self.pos.x
@@ -223,24 +213,13 @@ class Mob(pygame.sprite.Sprite):
 
 	def update(self):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
+
+		# rotate enemy based on position relative to player
 		if self.vec > -90 and self.vec < 90:
-			if self.type == 'E':
-				self.image = pygame.transform.flip(self.game.es_img, True, False)
-			elif self.type == 'R':
-				self.image = pygame.transform.flip(self.game.reap_img, True, False)
-			elif self.type == 'F':
-				self.image = pygame.transform.flip(self.game.flame_img, True, False)
-			elif self.type == 'S':
-				self.image = pygame.transform.flip(self.game.snail_img, True, False)
-		elif (self.vec < -90 or self.vec > 90):
-			if self.type == 'E':
-				self.image = pygame.transform.flip(self.game.es_img, False, False)
-			elif self.type == 'R':
-				self.image = pygame.transform.flip(self.game.reap_img, False, False)
-			elif self.type == 'F':
-				self.image = pygame.transform.flip(self.game.flame_img, False, False)
-			elif self.type == 'S':
-				self.image = pygame.transform.flip(self.game.snail_img, False, False)
+			self.image = pygame.transform.flip(self.default_image, True, False)
+		elif self.vec < -90 or self.vec > 90:
+			self.image = pygame.transform.flip(self.default_image, False, False)
+
 		self.rect = self.image.get_rect()
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
@@ -256,17 +235,10 @@ class Mob(pygame.sprite.Sprite):
 			self.rect.y = self.pos.y
 			collision(self, self.game.boundaries,'y')
 		if self.health <= 0:
-			if self.type == 'E':
-				Coin(self.game, self.rect.center)
-			elif self.type == 'R':
-				Coin(self.game, self.rect.center)
-				Coin(self.game, self.rect.center)
-			elif self.type == 'F':
-				Coin(self.game, self.rect.center)
-				Coin(self.game, self.rect.center)
-				Coin(self.game, self.rect.center)
-			else:
-				pass
+			# spawn coins around the enemy
+			for i in range(0, self.coins):
+				Coin(self.game, (self.rect.center[0] + randint(-20, 20), self.rect.center[1] + randint(-20, 20)))
+
 			self.kill()
 
 	def drawHealth(self):
@@ -281,24 +253,18 @@ class Mob(pygame.sprite.Sprite):
 		if self.health < self.fullHealth:
 			pygame.draw.rect(self.image, color, self.health_bar)
 
-
 class Projectile(pygame.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		if type == 'arrow':
-			self.image = game.arrow_img
-			if dir.x == 1:
-				self.image = pygame.transform.rotate(self.game.arrow_img, -90)
-			elif dir.x == -1:
-				self.image = pygame.transform.rotate(self.game.arrow_img, 90)
-			elif dir.y == -1:
-				self.image = self.game.arrow_img
-			elif dir.y == 1:
-				self.image = pygame.transform.rotate(self.game.arrow_img, 180)
-		else:
-			self.image = game.arrow_img
+			self.image = game.sprites['arrow']
+			if dir.y == 1:
+				self.image = pygame.transform.rotate(self.image, 180)
+			else:
+				self.image = pygame.transform.rotate(self.image, -90 * dir.x)
+
 		self.rect = self.image.get_rect()
 		self.pos = vector(pos)
 		self.rect.x = pos.x
@@ -322,7 +288,7 @@ class Coin(pygame.sprite.Sprite):
 		pygame.sprite.Sprite.__init__(self, self.groups)
 		self.pos = pos
 		self.game = game
-		self.image = game.coin_img
+		self.image = game.sprites['coin']
 		self.rect = self.image.get_rect()
 		self.rect.center = pos
 

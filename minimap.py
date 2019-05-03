@@ -1,12 +1,13 @@
 import pygame as pg
 from settings import *
+import math
 
 class Minimap:
 	def __init__(self, game):
 		self.game = game
 		self.width = 49 * TILESIZE / 16
 		self.height = 68 * TILESIZE / 16
-		self.rect = pg.Rect(WIDTH - self.width - 1, 2, self.width, self.height)
+		self.rect = pg.Rect(WIDTH - self.width - 1, 1, self.width, self.height)
 
 	def draw(self):
 		pg.draw.rect(self.game.screen, (0, 0, 0), self.rect)
@@ -20,7 +21,7 @@ class Minimap:
 			y = mob.pos.y / TILESIZE
 			pg.draw.rect(self.game.screen, (255, 0, 0), pg.Rect(self.rect.x + x * 4, self.rect.y + y * 4 , 4, 4))
 
-		x = self.game.player.pos.x / TILESIZE
+		x = (self.game.player.pos.x + (self.game.player.rect.width - TILESIZE) / 2) / TILESIZE
 		y = self.game.player.pos.y / TILESIZE
 
 		pg.draw.rect(self.game.screen, (0, 255, 0), pg.Rect(self.rect.x + x * 4, self.rect.y + y * 4, 4, 4))
