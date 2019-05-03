@@ -37,7 +37,7 @@ class Game:
 		pygame.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
-		self.minimap = Minimap()
+		self.minimap = Minimap(self)
 		self.load_data()
 
 	def load_data(self):
@@ -94,7 +94,7 @@ class Game:
 			if tile_object.name == 'flame':
 				Mob(self,tile_object.x,tile_object.y,'F')
 		self.camera = Cam(self.map.width, self.map.height)
-	
+
 	def main_menu(self):
 		font = pygame.font.Font(pygame.font.get_default_font(), 64)
 		surface = font.render('Mandelbrothers', True, (255, 255, 255))
@@ -108,7 +108,7 @@ class Game:
 		rect.center = (WIDTH // 2, 600)
 		self.screen.blit(surface, rect)
 
-		pygame.display.flip()	
+		pygame.display.flip()
 
 	def run(self):
 		# game loop
@@ -130,7 +130,7 @@ class Game:
 	def update(self):
 		self.all_sprites.update()
 		self.camera.update(self.player)
-		
+
 		# player gets hit by mob
 		for hit in pygame.sprite.spritecollide(self.player, self.mobs, False):
 			time = pygame.time.get_ticks()
@@ -141,20 +141,20 @@ class Game:
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				self.playing = False
-		
+
 		# mob gets hit by player
 		for hit in pygame.sprite.groupcollide(self.mobs, self.projectiles, False, True):
 			self.sounds['hit'].play()
 			hit.health -= PROJECTILE_DAMAGE
 			hit.vel = vector(0,0)
-	
+
 	def drawGrid(self):
 		# outlines tiles
 		for x in range(0, WIDTH, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (x, 0), (x, HEIGHT))
 		for y in range(0, HEIGHT, TILESIZE):
 			pygame.draw.line(self.screen, (0,0,0), (0, y), (WIDTH, y))
-	
+
 	def drawScreen(self):
 		# renders the screen
 		#pygame.display.set_caption("{:.2f}".format(self.clock.get_fps()))
@@ -170,7 +170,7 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
-		self.minimap.draw(self.screen, self.boundaries, self.mobs, self.player)
+		self.minimap.draw()
 		font = pygame.font.Font(pygame.font.get_default_font(), 32)
 		surface = font.render(f'Money: {self.player.money}', True, (255, 255, 255))
 		rect = surface.get_rect()
@@ -182,7 +182,7 @@ class Game:
 			rect = surface.get_rect()
 			rect.center = (WIDTH // 2, HEIGHT // 2)
 			self.screen.blit(surface, rect)
-		
+
 		pygame.display.flip()
 
 	def events(self):
