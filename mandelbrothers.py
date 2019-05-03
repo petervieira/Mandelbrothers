@@ -37,7 +37,7 @@ class Game:
 		pygame.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
-		self.minimap = Minimap()
+		self.minimap = Minimap(self)
 		self.load_data()
 
 	def load_data(self):
@@ -170,7 +170,7 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
-		self.minimap.draw(self.screen, self.boundaries, self.mobs, self.player)
+		self.minimap.draw()
 		font = pygame.font.Font(pygame.font.get_default_font(), 32)
 		surface = font.render(f'Money: {self.player.money}', True, (255, 255, 255))
 		rect = surface.get_rect()
@@ -199,7 +199,7 @@ class Game:
 					if self.paused:
 						pygame.mixer.music.unpause()
 						self.paused = False
-					else:
+					elif not self.on_main_menu:
 						pygame.mixer.music.pause()
 						self.paused = True
 
