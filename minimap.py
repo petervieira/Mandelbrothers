@@ -7,10 +7,7 @@ class Minimap:
 		self.width = 49 * TILESIZE / 16
 		self.height = 68 * TILESIZE / 16
 		self.rect = pg.Rect(1, HEIGHT - self.height - 1, self.width, self.height)
-
-	def update(self):
-		pass
-
+		
 	def draw(self):
 		pg.draw.rect(self.game.screen, (0, 0, 0), self.rect)
 		pg.draw.rect(self.game.screen, (0, 0, 255), pg.Rect(self.rect.x - 1, self.rect.y - 1, self.width + 2, self.height + 2), 1)

@@ -171,11 +171,13 @@ class Game:
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
 		self.minimap.draw()
+
 		font = pygame.font.Font(pygame.font.get_default_font(), 32)
 		surface = font.render(f'Money: {self.player.money}', True, (255, 255, 255))
 		rect = surface.get_rect()
 		rect.topleft = (10, 10)
 		self.screen.blit(surface, rect)
+		
 		if self.paused:
 			font = pygame.font.Font(pygame.font.get_default_font(), 64)
 			surface = font.render('Paused', True, (255, 255, 255))
