@@ -1,4 +1,5 @@
 import pygame
+import random
 from settings import *
 from os import path
 
@@ -46,6 +47,7 @@ class Player(pygame.sprite.Sprite):
 		self.last_shot = 0
 		self.health = 100
 		self.fullHealth = 100
+		self.money = 0
 
 	def getKeys(self):
 		global walkcount
@@ -238,6 +240,7 @@ class Mob(pygame.sprite.Sprite):
 			self.rect.y = self.pos.y
 			collision(self, self.game.boundaries,'y')
 		if self.health <= 0:
+			Coin(self.game, self.rect.center)
 			self.kill()
 
 	def drawHealth(self):
@@ -251,7 +254,6 @@ class Mob(pygame.sprite.Sprite):
 		self.health_bar = pygame.Rect(0,0,width,7)
 		if self.health < self.fullHealth:
 			pygame.draw.rect(self.image, color, self.health_bar)
-
 
 class Projectile(pygame.sprite.Sprite):
 	def __init__(self, game, pos, dir, type):
@@ -285,4 +287,20 @@ class Projectile(pygame.sprite.Sprite):
 		if pygame.sprite.spritecollideany(self, self.game.boundaries):
 			self.kill()
 		if self.lifetime > PROJECTILE_LIFETIME:
+			self.kill()
+
+class Coin(pygame.sprite.Sprite):
+	def __init__(self, game, pos):
+		self.groups = game.all_sprites
+		pygame.sprite.Sprite.__init__(self, self.groups)
+		self.pos = pos
+		self.game = game
+		self.image = game.coin_img
+		self.rect = self.image.get_rect()
+		self.rect.center = pos
+
+	def update(self):
+		if pygame.sprite.collide_rect(self, self.game.player):
+			self.game.player.money += 1
+			self.game.sounds['coin'].play()
 			self.kill()

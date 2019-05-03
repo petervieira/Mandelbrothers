@@ -37,7 +37,7 @@ class Game:
 		pygame.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
-		self.minimap = Minimap()
+		self.minimap = Minimap(self)
 		self.load_data()
 
 	def load_data(self):
@@ -55,8 +55,9 @@ class Game:
 		self.boundary_img = pygame.image.load('images/wall.png').convert_alpha()
 		self.arrow_img = pygame.image.load('images/arrow.png').convert_alpha()
 		self.ames_img = pygame.transform.scale(pygame.image.load('images/ames.png').convert_alpha(), (128, 128))
+		self.coin_img = pygame.transform.scale(pygame.image.load('images/coin.png').convert_alpha(), (32, 32))
 
-		self.load_sounds(['hit', 'shoot'])
+		self.load_sounds(['hit', 'shoot', 'coin'])
 
 	def load_sounds(self, sounds):
 		self.sounds = dict([(name, pygame.mixer.Sound('sounds/' + name + '.wav')) for name in sounds])
@@ -156,11 +157,20 @@ class Game:
 		for sprite in self.all_sprites:
 			if isinstance(sprite, Mob):
 				sprite.drawHealth()
-			self.screen.blit(sprite.image, self.camera.call(sprite))
+			if not isinstance(sprite, Player):
+				self.screen.blit(sprite.image, self.camera.call(sprite))
+
+		self.screen.blit(self.player.image, self.camera.call(self.player))
 		#pygame.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
 
-		self.minimap.draw(self.screen, self.boundaries, self.mobs, self.player)
+		self.minimap.draw()
+
+		font = pygame.font.Font(pygame.font.get_default_font(), 32)
+		surface = font.render(f'Money: {self.player.money}', True, (255, 255, 255))
+		rect = surface.get_rect()
+		rect.topleft = (10, 10)
+		self.screen.blit(surface, rect)
 
 		if self.paused:
 			font = pygame.font.Font(pygame.font.get_default_font(), 64)
@@ -185,7 +195,7 @@ class Game:
 					if self.paused:
 						pygame.mixer.music.unpause()
 						self.paused = False
-					else:
+					elif not self.on_main_menu:
 						pygame.mixer.music.pause()
 						self.paused = True
 
