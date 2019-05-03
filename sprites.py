@@ -113,28 +113,28 @@ class Player(pygame.sprite.Sprite):
 				self.image = pygame.transform.scale(pygame.image.load('images/front.png'), (48,64))
 			elif up:
 				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (48,64))
-
-		# check attacks
-		if keys[pygame.K_z]:
-			type = 'arrow'
-			if self.last_shot > PROJECTILE_RATE:
-				self.last_shot = 0
-				dir = vector(0,0)
-				pos = vector(self.pos)
-				if left:
-					dir = vector(-1,0)
-					pos += (-25,-10)
-				elif right:
-					dir = vector(1,0)
-					pos += (25,10)
-				elif down:
-					dir = vector(0,1)
-					pos += (-10,25)
-				else:
-					dir = vector(0,-1)
-					pos += (10,-25)
-				Projectile(self.game, pos, dir, type)
-				self.game.sounds['shoot'].play()
+			
+			# check attacks
+			if keys[pygame.K_z]:
+				type = 'arrow'
+				if self.last_shot > PROJECTILE_RATE:
+					self.last_shot = 0
+					dir = vector(0,0)
+					pos = vector(self.pos)
+					if left:
+						dir = vector(-1,0)
+						pos += (-40,10)
+					elif right:
+						dir = vector(1,0)
+						pos += (40,40)
+					elif down:
+						dir = vector(0,1)
+						pos += (10,40)
+					else:
+						dir = vector(0,-1)
+						pos += (40,-10)
+					Projectile(self.game, pos, dir, type)
+					self.game.sounds['shoot'].play()
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= .7071
 
@@ -193,8 +193,8 @@ class Mob(pygame.sprite.Sprite):
 		elif type == 'F':
 			self.image = game.flame_img
 			self.type = 'F'
-			self.health = 75
-			self.fullHealth = 75
+			self.health = 175
+			self.fullHealth = 175
 			self.damage = 80
 			self.speed = 50
 		else:
@@ -213,7 +213,7 @@ class Mob(pygame.sprite.Sprite):
 		self.vel = vector(0,0)
 		self.acc = vector(0,0)
 		self.last_attack = 0
-
+	
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
 			if mob != self:
@@ -228,6 +228,8 @@ class Mob(pygame.sprite.Sprite):
 				self.image = pygame.transform.flip(self.game.es_img, True, False)
 			elif self.type == 'R':
 				self.image = pygame.transform.flip(self.game.reap_img, True, False)
+			elif self.type == 'F':
+				self.image = pygame.transform.flip(self.game.flame_img, True, False)
 			elif self.type == 'S':
 				self.image = pygame.transform.flip(self.game.snail_img, True, False)
 		elif (self.vec < -90 or self.vec > 90):
@@ -235,6 +237,8 @@ class Mob(pygame.sprite.Sprite):
 				self.image = pygame.transform.flip(self.game.es_img, False, False)
 			elif self.type == 'R':
 				self.image = pygame.transform.flip(self.game.reap_img, False, False)
+			elif self.type == 'F':
+				self.image = pygame.transform.flip(self.game.flame_img, False, False)
 			elif self.type == 'S':
 				self.image = pygame.transform.flip(self.game.snail_img, False, False)
 		self.rect = self.image.get_rect()
@@ -252,7 +256,17 @@ class Mob(pygame.sprite.Sprite):
 			self.rect.y = self.pos.y
 			collision(self, self.game.boundaries,'y')
 		if self.health <= 0:
-			Coin(self.game, self.rect.center)
+			if self.type == 'E':
+				Coin(self.game, self.rect.center)
+			elif self.type == 'R':
+				Coin(self.game, self.rect.center)
+				Coin(self.game, self.rect.center)
+			elif self.type == 'F':
+				Coin(self.game, self.rect.center)
+				Coin(self.game, self.rect.center)
+				Coin(self.game, self.rect.center)
+			else:
+				pass
 			self.kill()
 
 	def drawHealth(self):
@@ -266,8 +280,8 @@ class Mob(pygame.sprite.Sprite):
 		self.health_bar = pygame.Rect(0,0,width,7)
 		if self.health < self.fullHealth:
 			pygame.draw.rect(self.image, color, self.health_bar)
-
-
+		
+		
 class Projectile(pygame.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
@@ -291,7 +305,7 @@ class Projectile(pygame.sprite.Sprite):
 		self.rect.y = pos.y
 		self.vel = dir * PROJECTILE_SPEED
 		self.lifetime = 0
-
+	
 	def update(self):
 		self.pos += self.vel * self.game.dt
 		self.rect.x = self.pos.x

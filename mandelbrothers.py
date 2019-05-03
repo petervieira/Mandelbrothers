@@ -199,7 +199,7 @@ class Game:
 					if self.paused:
 						pygame.mixer.music.unpause()
 						self.paused = False
-					else:
+					elif not self.on_main_menu:
 						pygame.mixer.music.pause()
 						self.paused = True
 
