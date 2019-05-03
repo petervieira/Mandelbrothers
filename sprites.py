@@ -1,5 +1,4 @@
 import pygame
-import random
 from settings import *
 from os import path
 
@@ -267,6 +266,7 @@ class Mob(pygame.sprite.Sprite):
 		self.health_bar = pygame.Rect(0,0,width,7)
 		if self.health < self.fullHealth:
 			pygame.draw.rect(self.image, color, self.health_bar)
+
 
 class Projectile(pygame.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
