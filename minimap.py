@@ -6,7 +6,7 @@ class Minimap:
 		self.game = game
 		self.width = 49 * TILESIZE / 16
 		self.height = 68 * TILESIZE / 16
-		self.rect = pg.Rect(1, HEIGHT - self.height - 1, self.width, self.height)
+		self.rect = pg.Rect(WIDTH - self.width - 1, 2, self.width, self.height)
 
 	def update(self):
 		pass
