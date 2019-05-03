@@ -115,26 +115,26 @@ class Player(pygame.sprite.Sprite):
 			elif up:
 				self.image = pygame.transform.scale(pygame.image.load('images/back.png'), (48,64))
 
-			# check attacks
-			if keys[pygame.K_z]:
-				type = 'arrow'
-				if self.last_shot > PROJECTILE_RATE:
-					self.last_shot = 0
-					dir = vector(0,0)
-					pos = vector(self.pos)
-					if left:
-						dir = vector(-1,0)
-						pos += (-25,-10)
-					elif right:
-						dir = vector(1,0)
-						pos += (25,10)
-					elif down:
-						dir = vector(0,1)
-						pos += (-10,25)
-					else:
-						dir = vector(0,-1)
-						pos += (10,-25)
-					Projectile(self.game, pos, dir, type)
+		# check attacks
+		if keys[pygame.K_z]:
+			type = 'arrow'
+			if self.last_shot > PROJECTILE_RATE:
+				self.last_shot = 0
+				dir = vector(0,0)
+				pos = vector(self.pos)
+				if left:
+					dir = vector(-1,0)
+					pos += (-25,-10)
+				elif right:
+					dir = vector(1,0)
+					pos += (25,10)
+				elif down:
+					dir = vector(0,1)
+					pos += (-10,25)
+				else:
+					dir = vector(0,-1)
+					pos += (10,-25)
+				Projectile(self.game, pos, dir, type)
 		if self.vel.x != 0 and self.vel.y != 0:
 			self.vel *= .7071
 
