@@ -82,7 +82,7 @@ class Game:
 		self.sounds = dict([(name, pg.mixer.Sound('sounds/' + name + '.wav')) for name in sounds])
 
 	def newGame(self):
-		self.all_sprites = pg.sprite.Group()
+		self.all_sprites = pg.sprite.LayeredUpdates()
 		self.boundaries = pg.sprite.Group()
 		self.mobs = pg.sprite.Group()
 		self.projectiles = pg.sprite.Group()

@@ -33,6 +33,7 @@ class Player(pg.sprite.Sprite):
 		self.game = game
 		self.image = game.sprites['back']
 		self.rect = self.image.get_rect()
+		self.rect.center = (x,y)
 		self.vel = vector(0,0)
 		self.pos = vector(x,y)
 		self.last_shot = 0
@@ -72,7 +73,7 @@ class Player(pg.sprite.Sprite):
 			else:
 				self.vel.x = PLAYER_SPEED
 				self.walkcount += 1
-			self.left = False
+			self.left = False     
 			self.right = True
 			self.down = False
 			self.up = False
