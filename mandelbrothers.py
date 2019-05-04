@@ -46,10 +46,10 @@ class Game:
 		pg.mixer.music.load('music/theme.wav')
 		pg.mixer.music.set_volume(.5)
 		pg.mixer.music.play(-1, 0.0)
-		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
+		self.map = TiledMap(path.join(gameFolder, 'maps/shop.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'wall'])
+		self.load_sprites(['flame', 'arrow', 'wall', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -85,11 +85,14 @@ class Game:
 		self.all_sprites = pg.sprite.LayeredUpdates()
 		self.boundaries = pg.sprite.Group()
 		self.mobs = pg.sprite.Group()
+		self.npcs = pg.sprite.Group()
 		self.projectiles = pg.sprite.Group()
 
 		for tile_object in self.map.tmxdata.objects:
 			if tile_object.name == 'player':
 				self.player = Player(self, tile_object.x, tile_object.y)
+			if tile_object.name == 'oldman':
+				NPC(self, tile_object.x, tile_object.y, 'OM')
 			if tile_object.name == 'wall':
 				Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 			if tile_object.name == 'snake':

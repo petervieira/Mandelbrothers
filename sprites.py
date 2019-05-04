@@ -1,7 +1,9 @@
 import pygame as pg
+import random
 from random import randint
 from settings import *
 from os import path
+from text import *
 
 vector = pg.math.Vector2
 
@@ -112,7 +114,7 @@ class Player(pg.sprite.Sprite):
 				self.image = self.game.sprites['back']
 
 		# check attacks
-		if keys[pg.K_SPACE] and not keys[pg.K_LSHIFT]:
+		if keys[pg.K_z] and not keys[pg.K_LSHIFT]:
 			type = 'arrow'
 			if self.last_shot > PROJECTILE_RATE:
 				self.last_shot = 0
@@ -254,6 +256,43 @@ class Mob(pg.sprite.Sprite):
 		if self.health < self.fullHealth:
 			pg.draw.rect(self.image, color, self.health_bar)
 
+class NPC(pg.sprite.Sprite):
+	def __init__ (self, game, x, y, type):
+		self.groups = game.all_sprites, game.npcs
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		self.type = type
+		if type == 'OM':
+			self.image = game.sprites['oldman']
+		self.rect = self.image.get_rect()
+		self.pos = vector(x,y)
+		self.rect.x = self.pos.x
+		self.rect.y = self.pos.y
+		self.vec = 0
+
+	def update(self):
+		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
+		self.distance = abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y)
+		if self.type == 'OM':
+			if self.distance < 150:
+				# rotate npc based on position relative to player
+				if self.vec > -45 and self.vec < 45:
+					self.image = self.game.sprites['oldman_right']
+				elif self.vec > 45 and self.vec < 135:
+					self.image = self.game.sprites['oldman_back']
+				elif self.vec > 135 or self.vec < -135:
+					self.image = self.game.sprites['oldman_left']
+				elif self.vec < -45 and self.vec > -135:
+					self.image = self.game.sprites['oldman']
+			if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_c]:
+				randint = random.randint(1,10)
+				if randint == 1:
+					Textbox("How was the weather up there?", self.game, self.image)
+				elif randint > 1 and randint < 5:
+					Textbox("It's a bit chilly down here...", self.game, self.image)
+				else:
+					Textbox("Buy anything you like!", self.game, self.image)
+		
 class Projectile(pg.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
