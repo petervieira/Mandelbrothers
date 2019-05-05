@@ -16,6 +16,7 @@ class Textbox:
 		while cont:
 			pg.event.pump() #keep pygame updated
 			if pg.key.get_pressed()[pg.K_z]:
+				pg.time.wait(1000)
 				cont = False
 			pg.display.flip()
 			self.game.clock.tick(60)

@@ -278,13 +278,10 @@ class NPC(pg.sprite.Sprite):
 		if self.type == 'OM':
 			if VISITS["shop"] == False:
 					Textbox("Egads! You've broken my floor!", self.game, self.image)
-					pg.time.wait(1500)
+					pg.time.wait(500)
 					Textbox("...", self.game, self.image)
-					pg.time.wait(500)
 					Textbox("Huh? You want to shop?", self.game, self.image)
-					pg.time.wait(500)
 					Textbox("The price is doubled for you, sir", self.game, self.image)
-					pg.time.wait(500)
 					VISITS["shop"] = True
 			if self.distance < 150:
 				# rotate npc based on position relative to player
@@ -300,13 +297,10 @@ class NPC(pg.sprite.Sprite):
 				randint = random.randint(1,10)
 				if randint == 1:
 					Textbox("How was the weather up there?", self.game, self.image)
-					pg.time.wait(1000)
 				elif randint > 1 and randint < 5:
 					Textbox("It's a bit chilly down here...", self.game, self.image)
-					pg.time.wait(1000)
 				else:
 					Textbox("Buy anything you like!", self.game, self.image)
-					pg.time.wait(1000)
 		
 class Projectile(pg.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
@@ -374,6 +368,7 @@ class WarpZone(pg.sprite.Sprite):
 				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/shop.tmx'))
 				self.game.map_img = self.game.map.make_map()
 				self.game.map_rect = self.game.map_img.get_rect()
+				self.game.minimap.update()
 				self.game.newGame()
 			if self.type == 'overworld':
 				pg.mixer.music.load('music/theme.wav')
@@ -382,4 +377,5 @@ class WarpZone(pg.sprite.Sprite):
 				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld.tmx'))
 				self.game.map_img = self.game.map.make_map()
 				self.game.map_rect = self.game.map_img.get_rect()
+				self.game.minimap.update()
 				self.game.newGame()
