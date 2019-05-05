@@ -17,7 +17,10 @@ class Minimap:
 			pg.draw.rect(self.game.screen, (64, 64, 64), pg.Rect(self.rect.x + sprite.x / 16, self.rect.y + sprite.y / 16, sprite.w / 16, sprite.h / 16))
 		
 		for npc in self.game.npcs:
-			pg.draw.rect(self.game.screen, (0, 0, 255), pg.Rect(self.rect.x + sprite.x / 16, self.rect.y + sprite.y / 16, sprite.w / 16, sprite.h / 16))
+			x = npc.pos.x / TILESIZE
+			y = npc.pos.y / TILESIZE
+			pg.draw.rect(self.game.screen, (0, 0, 255), pg.Rect(self.rect.x +  x * 4, self.rect.y + y * 4 , 4, 4))
+
 		for mob in self.game.mobs:
 			x = mob.pos.x / TILESIZE
 			y = mob.pos.y / TILESIZE

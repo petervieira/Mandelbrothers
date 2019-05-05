@@ -3,6 +3,7 @@ import random
 from random import randint
 from settings import *
 from os import path
+from mapp import *
 from text import *
 
 vector = pg.math.Vector2
@@ -41,7 +42,7 @@ class Player(pg.sprite.Sprite):
 		self.last_shot = 0
 		self.health = 100
 		self.fullHealth = 100
-		self.money = 0
+		self.money = ITEMS['money']
 		self.walkcount = 0
 		self.left = False
 		self.right = False
@@ -51,6 +52,7 @@ class Player(pg.sprite.Sprite):
 		self.walkLeft = [game.sprites['side_walk2'], game.sprites['side_walk']]
 		self.walkUp = [game.sprites['walk2'], game.sprites['walk']]
 		self.walkDown = [game.sprites['front_walk2'], game.sprites['front_walk']]
+			
 
 	def getKeys(self):
 		self.vel = vector(0,0)
@@ -274,6 +276,16 @@ class NPC(pg.sprite.Sprite):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
 		self.distance = abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y)
 		if self.type == 'OM':
+			if VISITS["shop"] == False:
+					Textbox("Egads! You've broken my floor!", self.game, self.image)
+					pg.time.wait(1500)
+					Textbox("...", self.game, self.image)
+					pg.time.wait(500)
+					Textbox("Huh? You want to shop?", self.game, self.image)
+					pg.time.wait(500)
+					Textbox("The price is doubled for you, sir", self.game, self.image)
+					pg.time.wait(500)
+					VISITS["shop"] = True
 			if self.distance < 150:
 				# rotate npc based on position relative to player
 				if self.vec > -45 and self.vec < 45:
@@ -284,14 +296,17 @@ class NPC(pg.sprite.Sprite):
 					self.image = self.game.sprites['oldman_left']
 				elif self.vec < -45 and self.vec > -135:
 					self.image = self.game.sprites['oldman']
-			if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_c]:
+			if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_x]:
 				randint = random.randint(1,10)
 				if randint == 1:
 					Textbox("How was the weather up there?", self.game, self.image)
+					pg.time.wait(1000)
 				elif randint > 1 and randint < 5:
 					Textbox("It's a bit chilly down here...", self.game, self.image)
+					pg.time.wait(1000)
 				else:
 					Textbox("Buy anything you like!", self.game, self.image)
+					pg.time.wait(1000)
 		
 class Projectile(pg.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
@@ -335,5 +350,36 @@ class Coin(pg.sprite.Sprite):
 	def update(self):
 		if pg.sprite.collide_rect(self, self.game.player):
 			self.game.player.money += 1
+			ITEMS['money'] += 1
 			self.game.sounds['coin'].play()
 			self.kill()
+
+class WarpZone(pg.sprite.Sprite):
+	def __init__(self, game, x, y, type):
+		self.groups = game.all_sprites, game.warps
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		self.type = type
+		self.image = game.sprites['warp']
+		self.rect = self.image.get_rect()
+		self.pos = vector(x,y)
+		self.rect.x = self.pos.x
+		self.rect.y = self.pos.y
+	def update(self):
+		if self.rect.colliderect(self.game.player.rect):
+			if self.type == 'shop':
+				pg.mixer.music.load('music/intro.wav')
+				pg.mixer.music.set_volume(.5)
+				pg.mixer.music.play(-1, 0.0)
+				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/shop.tmx'))
+				self.game.map_img = self.game.map.make_map()
+				self.game.map_rect = self.game.map_img.get_rect()
+				self.game.newGame()
+			if self.type == 'overworld':
+				pg.mixer.music.load('music/theme.wav')
+				pg.mixer.music.set_volume(.5)
+				pg.mixer.music.play(-1, 0.0)
+				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld.tmx'))
+				self.game.map_img = self.game.map.make_map()
+				self.game.map_rect = self.game.map_img.get_rect()
+				self.game.newGame()

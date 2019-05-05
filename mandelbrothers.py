@@ -31,7 +31,7 @@ class Game:
 		pg.mixer.pre_init(44100, -16, 2, 2048)
 		pg.mixer.init()
 		pg.init()
-		self.screen = pg.display.set_mode((WIDTH, HEIGHT))
+		self.screen = pg.display.set_mode((WIDTH, HEIGHT)) # add parameter ,pg.FULLSCREEN when finished
 		pg.display.set_caption(TITLE)
 		self.clock = pg.time.Clock()
 		pg.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
@@ -46,10 +46,10 @@ class Game:
 		pg.mixer.music.load('music/theme.wav')
 		pg.mixer.music.set_volume(.5)
 		pg.mixer.music.play(-1, 0.0)
-		self.map = TiledMap(path.join(gameFolder, 'maps/shop.tmx'))
+		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'wall', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right'])
+		self.load_sprites(['flame', 'arrow', 'wall', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -87,12 +87,17 @@ class Game:
 		self.mobs = pg.sprite.Group()
 		self.npcs = pg.sprite.Group()
 		self.projectiles = pg.sprite.Group()
+		self.warps = pg.sprite.Group()
 
 		for tile_object in self.map.tmxdata.objects:
 			if tile_object.name == 'player':
 				self.player = Player(self, tile_object.x, tile_object.y)
 			if tile_object.name == 'oldman':
 				NPC(self, tile_object.x, tile_object.y, 'OM')
+			if tile_object.name == 'shop':
+				WarpZone(self, tile_object.x, tile_object.y, 'shop')
+			if tile_object.name == 'overworld':
+				WarpZone(self, tile_object.x, tile_object.y, 'overworld')
 			if tile_object.name == 'wall':
 				Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 			if tile_object.name == 'snake':
@@ -151,6 +156,7 @@ class Game:
 				self.sounds['hit'].play()
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
+				ITEMS['money'] = 0
 				self.playing = False
 
 		# mob gets hit by player
