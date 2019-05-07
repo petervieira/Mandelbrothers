@@ -40,7 +40,7 @@ class Player(pg.sprite.Sprite):
 		self.vel = vector(0,0)
 		self.pos = vector(x,y)
 		self.last_shot = 0
-		self.health = 100
+		self.health = ITEMS['health']
 		self.fullHealth = 100
 		self.money = ITEMS['money']
 		self.walkcount = 0

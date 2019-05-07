@@ -17,5 +17,5 @@ PROJECTILE_DAMAGE = 50
 ENEMY_COOLDOWN = 1000
 MOB_RADIUS = 50
 
-ITEMS = {"money": 0}
+ITEMS = {"money": 0, "health": 100}
 VISITS = {"shop": False}

@@ -152,11 +152,13 @@ class Game:
 			time = pg.time.get_ticks()
 			if time - hit.last_attack > ENEMY_COOLDOWN:
 				self.player.health -= hit.damage
+				ITEMS['health'] -= hit.damage
 				hit.last_attack = time
 				self.sounds['hit'].play()
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				ITEMS['money'] = 0
+				ITEMS['health'] = 100
 				self.playing = False
 
 		# mob gets hit by player
