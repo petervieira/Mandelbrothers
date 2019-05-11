@@ -22,7 +22,6 @@ class Textbox:
 					if event.key == pg.K_ESCAPE:
 						self.game.quit()
 					elif event.key == pg.K_z:
-						pg.time.delay(750)
 						cont = False
 			pg.display.flip()
 			self.game.clock.tick(60)
