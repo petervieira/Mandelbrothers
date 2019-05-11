@@ -160,6 +160,8 @@ class Game:
 			if self.player.health <= 0:
 				ITEMS['money'] = 0
 				ITEMS['health'] = 100
+				ITEMS['overVisit'] = 1
+				ITEMS['shopVisit'] = 0
 				self.playing = False
 
 		# mob gets hit by player

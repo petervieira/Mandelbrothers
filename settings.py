@@ -19,5 +19,5 @@ MOB_RADIUS = 50
 
 TEXTBOX_DELAY = 750
 
-ITEMS = {"money": 0, "health": 100}
+ITEMS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
 VISITS = {"shop": False}

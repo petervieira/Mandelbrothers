@@ -392,7 +392,9 @@ class WarpZone(pg.sprite.Sprite):
 				pg.mixer.music.load('music/theme.wav')
 				pg.mixer.music.set_volume(.5)
 				pg.mixer.music.play(-1, 0.0)
-				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld.tmx'))
+				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld' + str(ITEMS['overVisit']) + '.tmx'))
+				if ITEMS['overVisit'] < 10:
+					ITEMS['overVisit'] += 1
 				self.game.map_img = self.game.map.make_map()
 				self.game.map_rect = self.game.map_img.get_rect()
 				self.game.minimap.update()
