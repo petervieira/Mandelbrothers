@@ -278,7 +278,6 @@ class NPC(pg.sprite.Sprite):
 		if self.type == 'OM':
 			if VISITS["shop"] == False:
 					Textbox("Egads! You've broken my floor!", self.game, self.image)
-					pg.time.wait(500)
 					Textbox("...", self.game, self.image)
 					Textbox("Huh? You want to shop?", self.game, self.image)
 					Textbox("The price is doubled for you, sir", self.game, self.image)

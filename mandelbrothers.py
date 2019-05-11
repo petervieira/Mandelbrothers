@@ -88,6 +88,8 @@ class Game:
 		self.npcs = pg.sprite.Group()
 		self.projectiles = pg.sprite.Group()
 		self.warps = pg.sprite.Group()
+		
+		self.camera = Cam(self.map.width, self.map.height)
 
 		for tile_object in self.map.tmxdata.objects:
 			if tile_object.name == 'player':
@@ -108,8 +110,6 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'R')
 			if tile_object.name == 'flame':
 				Mob(self,tile_object.x,tile_object.y,'F')
-
-		self.camera = Cam(self.map.width, self.map.height)
 
 	def main_menu(self):
 		font = pg.font.Font(pg.font.get_default_font(), 64)
@@ -216,6 +216,7 @@ class Game:
 				elif event.key == pg.K_SPACE and self.on_main_menu:
 					self.newGame()
 					self.on_main_menu = False
+					##
 				elif event.key == pg.K_p:
 					if self.paused:
 						pg.mixer.music.unpause()

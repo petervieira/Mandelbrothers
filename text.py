@@ -15,8 +15,14 @@ class Textbox:
 		cont = True
 		while cont:
 			pg.event.pump() #keep pygame updated
-			if pg.key.get_pressed()[pg.K_z]:
-				pg.time.wait(1000)
-				cont = False
+			for event in pg.event.get():
+				if event.type == pg.QUIT:
+					self.game.quit()
+				elif event.type == pg.KEYDOWN:
+					if event.key == pg.K_ESCAPE:
+						self.game.quit()
+					elif event.key == pg.K_z:
+						pg.time.delay(750)
+						cont = False
 			pg.display.flip()
 			self.game.clock.tick(60)
