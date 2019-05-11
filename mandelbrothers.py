@@ -34,9 +34,10 @@ class Game:
 		self.screen = pg.display.set_mode((WIDTH, HEIGHT)) # add parameter ,pg.FULLSCREEN when finished
 		pg.display.set_caption(TITLE)
 		self.clock = pg.time.Clock()
-		pg.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
+		# pg.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
+		self.interact = False
 		self.minimap = Minimap(self)
 		self.sprites = {}
 		self.load_data()
@@ -88,7 +89,7 @@ class Game:
 		self.npcs = pg.sprite.Group()
 		self.projectiles = pg.sprite.Group()
 		self.warps = pg.sprite.Group()
-		
+
 		self.camera = Cam(self.map.width, self.map.height)
 
 		for tile_object in self.map.tmxdata.objects:
@@ -187,8 +188,11 @@ class Game:
 			if isinstance(sprite, Mob):
 				sprite.drawHealth()
 			self.screen.blit(sprite.image, self.camera.call(sprite))
+			if isinstance(sprite, NPC) and self.interact:
+				sprite.drawTextbox()
 		#pg.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
-		draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
+		if not self.interact:
+			draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
 		self.minimap.draw()
 
 		font = pg.font.Font(pg.font.get_default_font(), 32)
@@ -216,7 +220,6 @@ class Game:
 				elif event.key == pg.K_SPACE and self.on_main_menu:
 					self.newGame()
 					self.on_main_menu = False
-					##
 				elif event.key == pg.K_p:
 					if self.paused:
 						pg.mixer.music.unpause()

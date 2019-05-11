@@ -52,92 +52,93 @@ class Player(pg.sprite.Sprite):
 		self.walkLeft = [game.sprites['side_walk2'], game.sprites['side_walk']]
 		self.walkUp = [game.sprites['walk2'], game.sprites['walk']]
 		self.walkDown = [game.sprites['front_walk2'], game.sprites['front_walk']]
-			
+
 
 	def getKeys(self):
 		self.vel = vector(0,0)
 		keys = pg.key.get_pressed()
-		if keys[pg.K_a] or keys[pg.K_LEFT]:
-			self.image = self.walkLeft[self.walkcount//12]
-			if keys[pg.K_LSHIFT]:
-				self.vel.x = -PLAYER_SPEED * 1.5
-				self.walkcount += 2
-			else:
-				self.vel.x = -PLAYER_SPEED
-				self.walkcount += 1
-			self.left = True
-			self.right = False
-			self.down = False
-			self.up = False
-		elif keys[pg.K_d] or keys[pg.K_RIGHT]:
-			self.image = self.walkRight[self.walkcount//12]
-			if keys[pg.K_LSHIFT]:
-				self.vel.x = PLAYER_SPEED * 1.5
-				self.walkcount += 2
-			else:
-				self.vel.x = PLAYER_SPEED
-				self.walkcount += 1
-			self.left = False     
-			self.right = True
-			self.down = False
-			self.up = False
-		elif keys[pg.K_s] or keys[pg.K_DOWN]:
-			self.image = self.walkDown[self.walkcount//12]
-			if keys[pg.K_LSHIFT]:
-				self.vel.y = PLAYER_SPEED * 1.5
-				self.walkcount += 2
-			else:
-				self.vel.y = PLAYER_SPEED
-				self.walkcount += 1
-			self.left = False
-			self.right = False
-			self.down = True
-			self.up = False
-		elif keys[pg.K_w] or keys[pg.K_UP]:
-			self.image = self.walkUp[self.walkcount//12]
-			if keys[pg.K_LSHIFT]:
-				self.vel.y = -PLAYER_SPEED * 1.5
-				self.walkcount += 2
-			else:
-				self.vel.y = -PLAYER_SPEED
-				self.walkcount += 1
-			self.left = False
-			self.right = False
-			self.down = False
-			self.up = True
-		else:
-			if self.left:
-				self.image = self.game.sprites['side']
-			elif self.right:
-				self.image = self.game.sprites['side2']
-			elif self.down:
-				self.image = self.game.sprites['front']
-			elif self.up:
-				self.image = self.game.sprites['back']
-
-		# check attacks
-		if keys[pg.K_z] and not keys[pg.K_LSHIFT]:
-			type = 'arrow'
-			if self.last_shot > PROJECTILE_RATE:
-				self.last_shot = 0
-				dir = vector(0,0)
-				pos = vector(self.pos)
-				if self.left:
-					dir = vector(-1,0)
-					pos += (-40,10)
-				elif self.right:
-					dir = vector(1,0)
-					pos += (40,40)
-				elif self.down:
-					dir = vector(0,1)
-					pos += (10,40)
+		if not self.game.interact:
+			if keys[pg.K_a] or keys[pg.K_LEFT]:
+				self.image = self.walkLeft[self.walkcount//12]
+				if keys[pg.K_LSHIFT]:
+					self.vel.x = -PLAYER_SPEED * 1.5
+					self.walkcount += 2
 				else:
-					dir = vector(0,-1)
-					pos += (40,-10)
-				Projectile(self.game, pos, dir, type)
-				self.game.sounds['shoot'].play()
-		if self.vel.x != 0 and self.vel.y != 0:
-			self.vel *= .7071
+					self.vel.x = -PLAYER_SPEED
+					self.walkcount += 1
+				self.left = True
+				self.right = False
+				self.down = False
+				self.up = False
+			elif keys[pg.K_d] or keys[pg.K_RIGHT]:
+				self.image = self.walkRight[self.walkcount//12]
+				if keys[pg.K_LSHIFT]:
+					self.vel.x = PLAYER_SPEED * 1.5
+					self.walkcount += 2
+				else:
+					self.vel.x = PLAYER_SPEED
+					self.walkcount += 1
+				self.left = False
+				self.right = True
+				self.down = False
+				self.up = False
+			elif keys[pg.K_s] or keys[pg.K_DOWN]:
+				self.image = self.walkDown[self.walkcount//12]
+				if keys[pg.K_LSHIFT]:
+					self.vel.y = PLAYER_SPEED * 1.5
+					self.walkcount += 2
+				else:
+					self.vel.y = PLAYER_SPEED
+					self.walkcount += 1
+				self.left = False
+				self.right = False
+				self.down = True
+				self.up = False
+			elif keys[pg.K_w] or keys[pg.K_UP]:
+				self.image = self.walkUp[self.walkcount//12]
+				if keys[pg.K_LSHIFT]:
+					self.vel.y = -PLAYER_SPEED * 1.5
+					self.walkcount += 2
+				else:
+					self.vel.y = -PLAYER_SPEED
+					self.walkcount += 1
+				self.left = False
+				self.right = False
+				self.down = False
+				self.up = True
+			else:
+				if self.left:
+					self.image = self.game.sprites['side']
+				elif self.right:
+					self.image = self.game.sprites['side2']
+				elif self.down:
+					self.image = self.game.sprites['front']
+				elif self.up:
+					self.image = self.game.sprites['back']
+
+			# check attacks
+			if (keys[pg.K_z] or keys[pg.K_SPACE]) and not keys[pg.K_LSHIFT]:
+				type = 'arrow'
+				if self.last_shot > PROJECTILE_RATE:
+					self.last_shot = 0
+					dir = vector(0,0)
+					pos = vector(self.pos)
+					if self.left:
+						dir = vector(-1,0)
+						pos += (-40,10)
+					elif self.right:
+						dir = vector(1,0)
+						pos += (40,40)
+					elif self.down:
+						dir = vector(0,1)
+						pos += (10,40)
+					else:
+						dir = vector(0,-1)
+						pos += (40,-10)
+					Projectile(self.game, pos, dir, type)
+					self.game.sounds['shoot'].play()
+			if self.vel.x != 0 and self.vel.y != 0:
+				self.vel *= .7071
 
 	def update(self):
 		if self.walkcount >= 24:
@@ -271,16 +272,21 @@ class NPC(pg.sprite.Sprite):
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
 		self.vec = 0
+		self.textboxDelay = 0
+		self.textboxIndex = 0
+		self.textboxes = [
+			Textbox("Egads! You've broken my floor!", self.game, self.image),
+			Textbox("...", self.game, self.image),
+			Textbox("Huh? You want to shop?", self.game, self.image),
+			Textbox("The price is doubled for you, sir", self.game, self.image)
+		]
 
 	def update(self):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
 		self.distance = abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y)
 		if self.type == 'OM':
 			if VISITS["shop"] == False:
-					Textbox("Egads! You've broken my floor!", self.game, self.image)
-					Textbox("...", self.game, self.image)
-					Textbox("Huh? You want to shop?", self.game, self.image)
-					Textbox("The price is doubled for you, sir", self.game, self.image)
+					self.game.interact = True
 					VISITS["shop"] = True
 			if self.distance < 150:
 				# rotate npc based on position relative to player
@@ -292,15 +298,28 @@ class NPC(pg.sprite.Sprite):
 					self.image = self.game.sprites['oldman_left']
 				elif self.vec < -45 and self.vec > -135:
 					self.image = self.game.sprites['oldman']
-			if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_x]:
-				randint = random.randint(1,10)
-				if randint == 1:
-					Textbox("How was the weather up there?", self.game, self.image)
-				elif randint > 1 and randint < 5:
-					Textbox("It's a bit chilly down here...", self.game, self.image)
-				else:
-					Textbox("Buy anything you like!", self.game, self.image)
-		
+			if pg.key.get_pressed()[pg.K_z]:
+				if not self.game.interact and self.rect.colliderect(self.game.player.rect):
+					self.game.interact = True
+					randint = random.randint(1,10)
+					if randint == 1:
+						self.textboxes = [Textbox("How was the weather up there?", self.game, self.image)]
+					elif randint > 1 and randint < 5:
+						self.textboxes = [Textbox("It's a bit chilly down here...", self.game, self.image)]
+					else:
+						self.textboxes = [Textbox("Buy anything you like!", self.game, self.image)]
+				if self.game.interact and self.textboxDelay > TEXTBOX_DELAY and self.textboxIndex < len(self.textboxes) - 1:
+					self.textboxDelay = 0
+					self.textboxIndex += 1
+
+			if self.game.interact and self.textboxIndex == len(self.textboxes) - 1 and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
+				self.textboxIndex = 0
+				self.game.interact = False
+			self.textboxDelay += self.game.dt * 1000
+
+	def drawTextbox(self):
+		self.textboxes[self.textboxIndex].render()
+
 class Projectile(pg.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):
 		self.groups = game.all_sprites, game.projectiles
