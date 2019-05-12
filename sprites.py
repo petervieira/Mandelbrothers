@@ -1,5 +1,6 @@
 import pygame as pg
 import random
+import math
 from random import randint
 from settings import *
 from os import path
@@ -40,9 +41,9 @@ class Player(pg.sprite.Sprite):
 		self.vel = vector(0,0)
 		self.pos = vector(x,y)
 		self.last_shot = 0
-		self.health = ITEMS['health']
+		self.health = STATUS['health']
 		self.fullHealth = 100
-		self.money = ITEMS['money']
+		self.money = STATUS['money']
 		self.walkcount = 0
 		self.left = False
 		self.right = False
@@ -122,20 +123,38 @@ class Player(pg.sprite.Sprite):
 				if self.last_shot > PROJECTILE_RATE:
 					self.last_shot = 0
 					dir = vector(0,0)
+					dir2 = vector(0,0)
+					dir3 = vector(0,0)
 					pos = vector(self.pos)
+					dir2pos = vector(self.pos) # the arrow shooting left needs an extra offset due to the position calculation using the corner of the sprite
 					if self.left:
 						dir = vector(-1,0)
-						pos += (-40,10)
+						dir2 = vector(-1,-.3)
+						dir3 = vector(-1,.3)
+						pos += (-15,20)
+						dir2pos += (-14,3)
 					elif self.right:
 						dir = vector(1,0)
-						pos += (40,40)
+						dir2 = vector(1,-.3)
+						dir3 = vector(1,.3)
+						pos += (10,30)
+						dir2pos += (10,10)
 					elif self.down:
 						dir = vector(0,1)
-						pos += (10,40)
+						dir2 = vector(-.3,1)
+						dir3 = vector(.3,1)
+						pos += (16,15)
+						dir2pos += (3,15)
 					else:
 						dir = vector(0,-1)
-						pos += (40,-10)
+						dir2 = vector(-.3,-1)
+						dir3 = vector(.3,-1)
+						pos += (17,-10)
+						dir2pos += (3,-10)
 					Projectile(self.game, pos, dir, type)
+					if SHOP['triplebow']:
+						Projectile(self.game, dir2pos, dir2, type)
+						Projectile(self.game, pos, dir3, type)
 					self.game.sounds['shoot'].play()
 			if self.vel.x != 0 and self.vel.y != 0:
 				self.vel *= .7071
@@ -183,7 +202,7 @@ class Mob(pg.sprite.Sprite):
 			self.health = 150
 			self.fullHealth = 150
 			self.damage = 50
-			self.speed = 200
+			self.speed = 150
 			self.coins = 2
 		elif type == 'S':
 			self.image = game.sprites['snail']
@@ -196,9 +215,37 @@ class Mob(pg.sprite.Sprite):
 			self.image = game.sprites['flame']
 			self.health = 175
 			self.fullHealth = 175
-			self.damage = 80
+			self.damage = 60
 			self.speed = 50
 			self.coins = 3
+		elif type == 'G':
+			self.image = game.sprites['golem']
+			self.health = 500
+			self.fullHealth = 500
+			self.damage = 100
+			self.speed = 100
+			self.coins = 15
+		elif type == 'L':
+			self.image = game.sprites['lantern']
+			self.health = 250
+			self.fullHealth = 250
+			self.damage = 70
+			self.speed = 250
+			self.coins = 8
+		elif type == 'B':
+			self.image = game.sprites['bear']
+			self.health = 300
+			self.fullHealth = 300
+			self.damage = 80
+			self.speed = 150
+			self.coins = 10
+		elif type == 'O':
+			self.image = game.sprites['octodaddy']
+			self.health = 50000
+			self.fullHealth = 50000
+			self.damage = 200
+			self.speed = 0
+			self.coins = 1000
 
 		self.default_image = self.image
 		self.rect = self.image.get_rect()
@@ -209,6 +256,7 @@ class Mob(pg.sprite.Sprite):
 		self.vel = vector(0,0)
 		self.acc = vector(0,0)
 		self.last_attack = 0
+		self.slowtime = 0
 
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
@@ -229,11 +277,19 @@ class Mob(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
-		if abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y) < 500:
+		
+		if abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y) < 700:
 			self.acc = vector(1, 0).rotate(-self.vec)
 			self.avoid_mobs()
-			self.acc.scale_to_length(self.speed)
-			self.acc += self.vel * -1
+			time = pg.time.get_ticks()
+			if time - self.slowtime > SLOW_COOLDOWN:
+				self.acc.scale_to_length(self.speed)
+			else:
+				self.acc.scale_to_length(self.speed / 3)
+			if self.type != 'R' and self.type != 'L':
+				self.acc += self.vel * -1
+			else:
+				self.acc += self.vel * -.5
 			self.vel += self.acc * self.game.dt
 			self.pos += self.vel * self.game.dt + .5 * self.acc * self.game.dt ** 2
 			self.rect.x = self.pos.x
@@ -244,7 +300,6 @@ class Mob(pg.sprite.Sprite):
 			# spawn coins around the enemy
 			for i in range(0, self.coins):
 				Coin(self.game, (self.rect.center[0] + randint(-20, 20), self.rect.center[1] + randint(-20, 20)))
-
 			self.kill()
 
 	def drawHealth(self):
@@ -275,19 +330,25 @@ class NPC(pg.sprite.Sprite):
 		self.textboxDelay = 0
 		self.textboxIndex = 0
 		self.textboxes = [
-			Textbox("Egads! You've broken my floor!", self.game, self.image),
+			Textbox("Egads! You have broken my floor!", self.game, self.image),
 			Textbox("...", self.game, self.image),
-			Textbox("Huh? You want to shop?", self.game, self.image),
-			Textbox("The price is doubled for you, sir", self.game, self.image)
+			Textbox("Huh? You... You are not from Mandelbrot...", self.game, self.image),
+			Textbox("You whippersnappers always trespass into forbidden lands", self.game, self.image),
+			Textbox("It is not safe here. Not anymore...", self.game, self.image),
+			Textbox("The overworld is infested with ravenous creatures these days", self.game, self.image),
+			Textbox("It is foolish to wander around in this corrupted nation", self.game, self.image),
+			Textbox("...though I suppose you may use my shop if you wish", self.game, self.image),
+			Textbox("...", self.game, self.image),
+			Textbox("Good luck, kid", self.game, self.image)
 		]
 
 	def update(self):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
 		self.distance = abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y)
 		if self.type == 'OM':
-			if VISITS["shop"] == False:
+			if SHOP["shop"] == False:
 					self.game.interact = True
-					VISITS["shop"] = True
+					SHOP["shop"] = True
 			if self.distance < 150:
 				# rotate npc based on position relative to player
 				if self.vec > -45 and self.vec < 45:
@@ -326,12 +387,13 @@ class Projectile(pg.sprite.Sprite):
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
 		if type == 'arrow':
-			self.image = game.sprites['arrow']
-			if dir.y == 1:
-				self.image = pg.transform.rotate(self.image, 180)
+			if SHOP['icebow']:
+				self.image = game.sprites['icearrow']
 			else:
-				self.image = pg.transform.rotate(self.image, -90 * dir.x)
-
+				self.image = game.sprites['arrow']
+			self.image = pg.transform.rotate(self.image, -90)
+			self.image = pg.transform.rotate(self.image, math.atan2(dir.y * -1,dir.x)*180/math.pi)
+			
 		self.rect = self.image.get_rect()
 		self.pos = vector(pos)
 		self.rect.x = pos.x
@@ -362,7 +424,7 @@ class Coin(pg.sprite.Sprite):
 	def update(self):
 		if pg.sprite.collide_rect(self, self.game.player):
 			self.game.player.money += 1
-			ITEMS['money'] += 1
+			STATUS['money'] += 1
 			self.game.sounds['coin'].play()
 			self.kill()
 
@@ -392,9 +454,9 @@ class WarpZone(pg.sprite.Sprite):
 				pg.mixer.music.load('music/theme.wav')
 				pg.mixer.music.set_volume(.5)
 				pg.mixer.music.play(-1, 0.0)
-				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld' + str(ITEMS['overVisit']) + '.tmx'))
-				if ITEMS['overVisit'] < 10:
-					ITEMS['overVisit'] += 1
+				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld' + str(STATUS['overVisit']) + '.tmx'))
+				if STATUS['overVisit'] < 6:
+					STATUS['overVisit'] += 1
 				self.game.map_img = self.game.map.make_map()
 				self.game.map_rect = self.game.map_img.get_rect()
 				self.game.minimap.update()
