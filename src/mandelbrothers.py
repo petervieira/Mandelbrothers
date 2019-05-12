@@ -57,7 +57,7 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow'])
+		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -78,11 +78,11 @@ class Game:
 		])
 		self.load_sounds(['hit', 'shoot', 'coin'])
 		self.textboxes = [
-			Textbox('Welcome to Mandelbrothers!', self, self.sprites['oldman']),
-			Textbox('Use the WASD keys or the arrow keys to move around.', self, self.sprites['oldman']),
-			Textbox('Use Z or SPACE to shoot, and Z to interact with people.', self, self.sprites['oldman']),
-			Textbox('The goal is to make it to the portal at the top of the map.', self, self.sprites['oldman']),
-			Textbox('Good luck!', self, self.sprites['oldman'])]
+			Textbox('Welcome to Mandelbrothers!', self, self.sprites['brother']),
+			Textbox('Use the WASD keys or the arrow keys to move around.', self, self.sprites['brother']),
+			Textbox('Use Z or SPACE to shoot, and Z to interact with people.', self, self.sprites['brother']),
+			Textbox('The goal is to make it to the portal at the top of the map.', self, self.sprites['brother']),
+			Textbox('Good luck!', self, self.sprites['brother'])]
 
 	def load_sprites(self, sprites):
 		for name in sprites:
