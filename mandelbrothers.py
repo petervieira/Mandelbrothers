@@ -119,7 +119,7 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'B')
 			if tile_object.name == 'octodaddy':
 				Mob(self,tile_object.x,tile_object.y,'O')
-				
+
 	def main_menu(self):
 		font = pg.font.Font(pg.font.get_default_font(), 64)
 		surface = font.render('Mandelbrothers', True, (255, 255, 255))
@@ -198,10 +198,11 @@ class Game:
 			draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
 		self.minimap.draw()
 
-		font = pg.font.Font(pg.font.get_default_font(), 32)
-		surface = font.render(f'Money: {self.player.money}', True, (255, 255, 255))
+		self.screen.blit(self.sprites['coin'], (16, 16))
+		font = pg.font.Font(pg.font.match_font('papyrus'), 48)
+		surface = font.render(str(self.player.money), True, (255, 255, 255))
 		rect = surface.get_rect()
-		rect.topleft = (10, 10)
+		rect.midleft = (52, 32)
 		self.screen.blit(surface, rect)
 
 		if self.paused:
