@@ -57,7 +57,7 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'health'])
+		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'health', 'menu'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -137,18 +137,7 @@ class Game:
 				Item(self, (tile_object.x, tile_object.y), tile_object.name)
 
 	def main_menu(self):
-		font = pg.font.Font(pg.font.get_default_font(), 64)
-		surface = font.render('Mandelbrothers', True, (255, 255, 255))
-		rect = surface.get_rect()
-		rect.center = (WIDTH // 2, 100)
-		self.screen.blit(surface, rect)
-
-		font = pg.font.Font(pg.font.get_default_font(), 32)
-		surface = font.render('Press space to begin', True, (255, 255, 255))
-		rect = surface.get_rect()
-		rect.center = (WIDTH // 2, 600)
-		self.screen.blit(surface, rect)
-
+		self.screen.blit(self.sprites['menu'], (0,0))
 		pg.display.flip()
 
 	def run(self):
@@ -204,7 +193,7 @@ class Game:
 		# renders the screen
 		#pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 		self.screen.blit(self.map_img, self.camera.callRect(self.map_rect))
-		
+
 		for sprite in self.items:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 
