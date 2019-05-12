@@ -21,4 +21,4 @@ SLOW_COOLDOWN = 3000
 TEXTBOX_DELAY = 750
 
 STATUS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
-SHOP = {"shop": False, 'icebow': False, 'triplebow': False}
+SHOP = {"shop": False, 'icebow': True, 'triplebow': True}

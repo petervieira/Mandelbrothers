@@ -156,6 +156,7 @@ class Player(pg.sprite.Sprite):
 						Projectile(self.game, dir2pos, dir2, type)
 						Projectile(self.game, pos, dir3, type)
 					self.game.sounds['shoot'].play()
+					self.game.sounds['shoot'].set_volume(.25)
 			if self.vel.x != 0 and self.vel.y != 0:
 				self.vel *= .7071
 
@@ -196,6 +197,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 100
 			self.damage = 30
 			self.speed = 100
+			self.maxSpeed = 100
 			self.coins = 1
 			self.ghost = False
 		elif type == 'R':
@@ -204,6 +206,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 150
 			self.damage = 50
 			self.speed = 150
+			self.maxSpeed = 150
 			self.coins = 2
 			self.ghost = True
 		elif type == 'S':
@@ -212,6 +215,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 50
 			self.damage = 5
 			self.speed = 10
+			self.maxSpeed = 10
 			self.coins = 0
 			self.ghost = False
 		elif type == 'F':
@@ -220,6 +224,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 175
 			self.damage = 60
 			self.speed = 50
+			self.maxSpeed = 50
 			self.coins = 3
 			self.ghost = False
 		elif type == 'G':
@@ -228,6 +233,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 500
 			self.damage = 100
 			self.speed = 100
+			self.maxSpeed = 100
 			self.coins = 15
 			self.ghost = False
 		elif type == 'L':
@@ -236,6 +242,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 250
 			self.damage = 70
 			self.speed = 250
+			self.maxSpeed = 250
 			self.coins = 8
 			self.ghost = True
 		elif type == 'B':
@@ -244,6 +251,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 300
 			self.damage = 80
 			self.speed = 150
+			self.maxSpeed = 150
 			self.coins = 10
 			self.ghost = False
 		elif type == 'O':
@@ -252,6 +260,7 @@ class Mob(pg.sprite.Sprite):
 			self.fullHealth = 50000
 			self.damage = 200
 			self.speed = 0
+			self.maxSpeed = 0
 			self.coins = 1000
 			self.ghost = False
 
@@ -291,9 +300,12 @@ class Mob(pg.sprite.Sprite):
 			self.avoid_mobs()
 			time = pg.time.get_ticks()
 			if time - self.slowtime > SLOW_COOLDOWN:
-				self.acc.scale_to_length(self.speed)
+				self.acc.scale_to_length(self.maxSpeed)
 			else:
-				self.acc.scale_to_length(self.speed / 3)
+				if self.type != 'B' and self.type != 'G':
+					self.acc.scale_to_length(self.maxSpeed / 3)
+				else:
+					self.acc.scale_to_length(self.maxSpeed)
 			if self.type != 'R' and self.type != 'L':
 				self.acc += self.vel * -1
 			else:
@@ -440,7 +452,7 @@ class WarpZone(pg.sprite.Sprite):
 		if self.rect.colliderect(self.game.player.rect):
 			if self.type == 'shop':
 				pg.mixer.music.load('music/intro.wav')
-				pg.mixer.music.set_volume(.5)
+				pg.mixer.music.set_volume(.3)
 				pg.mixer.music.play(-1, 0.0)
 				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/shop.tmx'))
 				self.game.map_img = self.game.map.make_map()
@@ -448,10 +460,7 @@ class WarpZone(pg.sprite.Sprite):
 				self.game.minimap.update()
 				self.game.newGame()
 			if self.type == 'overworld':
-				if STATUS['overVisit'] < 3:
-					pg.mixer.music.load('music/theme.wav')
-				else:
-					pg.mixer.music.load('music/theme2.wav')
+				pg.mixer.music.load('music/theme2.wav')
 				pg.mixer.music.set_volume(.5)
 				pg.mixer.music.play(-1, 0.0)
 				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld' + str(STATUS['overVisit']) + '.tmx'))
