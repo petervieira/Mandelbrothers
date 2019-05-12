@@ -37,6 +37,7 @@ class Game:
 		# pg.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
+		self.game_over = False
 		self.interact = True
 		self.minimap = Minimap(self)
 		self.sprites = {}
@@ -156,7 +157,7 @@ class Game:
 			if self.on_main_menu:
 				self.main_menu()
 			else:
-				if not self.paused:
+				if not (self.paused or self.game_over):
 					self.update()
 				self.drawScreen()
 
@@ -179,14 +180,7 @@ class Game:
 				self.sounds['hit'].set_volume(.3)
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
-				STATUS['money'] = 0
-				STATUS['health'] = 100
-				STATUS['overVisit'] = 1
-				STATUS['shopVisit'] = 0
-				SHOP['shop'] = False
-				SHOP['icebow'] = False
-				SHOP['triplebow'] = False
-				self.playing = False
+				self.game_over = True
 
 		if self.interact and self.textboxIndex == len(self.textboxes) - 1 and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
 			self.textboxIndex = 0
@@ -213,7 +207,8 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 
 		if not self.interact:
-			draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
+			draw_player_health(self.screen, 256, 728, self.player.health / self.player.fullHealth)
+
 		self.minimap.draw()
 
 		if self.interact:
@@ -233,6 +228,22 @@ class Game:
 			rect.center = (WIDTH // 2, HEIGHT // 2)
 			self.screen.blit(surface, rect)
 
+		if self.game_over:
+			font = pg.font.Font(pg.font.match_font('papyrus'), 96)
+			font2 = pg.font.Font(pg.font.match_font('papyrus'), 64)
+			surface = font.render('Game Over', True, (255, 255, 255))
+			surface2 = font2.render(f'Made it to wave {STATUS["overVisit"]}', True, (255, 255, 255))
+			surface3 = font2.render('Press space to continue', True, (255, 255, 255))
+			rect = surface.get_rect()
+			rect2 = surface2.get_rect()
+			rect3 = surface3.get_rect()
+			rect.center = (WIDTH // 2, HEIGHT // 2)
+			rect2.center = (WIDTH // 2, HEIGHT // 2 + 80)
+			rect3.center = (WIDTH // 2, HEIGHT - 80)
+			self.screen.blit(surface, rect)
+			self.screen.blit(surface2, rect2)
+			self.screen.blit(surface3, rect3)
+
 		pg.display.flip()
 
 	def events(self):
@@ -242,12 +253,22 @@ class Game:
 			elif event.type == pg.KEYDOWN:
 				if event.key == pg.K_ESCAPE:
 					self.quit()
-				elif event.key == pg.K_SPACE and self.on_main_menu:
-					pg.mixer.music.load('music/theme2.wav')
-					pg.mixer.music.set_volume(.5)
-					pg.mixer.music.play(-1, 0.0)
-					self.newGame()
-					self.on_main_menu = False
+				elif event.key == pg.K_SPACE:
+					if self.on_main_menu:
+						pg.mixer.music.load('music/theme2.wav')
+						pg.mixer.music.set_volume(.5)
+						pg.mixer.music.play(-1, 0.0)
+						self.newGame()
+						self.on_main_menu = False
+					elif self.game_over:
+						STATUS['money'] = 0
+						STATUS['health'] = 100
+						STATUS['overVisit'] = 1
+						STATUS['shopVisit'] = 0
+						SHOP['shop'] = False
+						SHOP['icebow'] = False
+						SHOP['triplebow'] = False
+						self.playing = False
 				elif event.key == pg.K_p:
 					if self.paused:
 						pg.mixer.music.unpause()
