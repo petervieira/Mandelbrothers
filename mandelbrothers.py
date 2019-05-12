@@ -164,6 +164,7 @@ class Game:
 				STATUS['health'] -= hit.damage
 				hit.last_attack = time
 				self.sounds['hit'].play()
+				self.sounds['hit'].set_volume(.3)
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				STATUS['money'] = 0
@@ -178,6 +179,7 @@ class Game:
 		# mob gets hit by player
 		for hit in pg.sprite.groupcollide(self.mobs, self.projectiles, False, True):
 			self.sounds['hit'].play()
+			self.sounds['hit'].set_volume(.3)
 			if SHOP['icebow']:
 				hit.slowtime = pg.time.get_ticks()
 			hit.health -= PROJECTILE_DAMAGE
@@ -222,6 +224,9 @@ class Game:
 				if event.key == pg.K_ESCAPE:
 					self.quit()
 				elif event.key == pg.K_SPACE and self.on_main_menu:
+					pg.mixer.music.load('music/theme2.wav')
+					pg.mixer.music.set_volume(.5)
+					pg.mixer.music.play(-1, 0.0)
 					self.newGame()
 					self.on_main_menu = False
 				elif event.key == pg.K_p:
