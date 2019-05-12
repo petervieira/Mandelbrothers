@@ -24,12 +24,12 @@ STATUS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
 SHOP = {"shop": False, 'icebow': True, 'triplebow': True}
 
 ITEMS = {
-    'ice-bow': {cost: 5},
-    'triple': {cost: 5},
-    'explosive': {cost: 5},
-    'shoot': {cost: 5},
-    'damage': {cost: 5},
-    'armor': {cost: 5},
-    'health': {cost: 5},
-    'end-game': {cost: 5}
+    'ice-bow': {'cost': 5},
+    'triple': {'cost': 5},
+    'explosive': {'cost': 5},
+    'shoot': {'cost': 5},
+    'damage': {'cost': 5},
+    'armor': {'cost': 5},
+    'health': {'cost': 5},
+    'end-game': {'cost': 1000}
 }
