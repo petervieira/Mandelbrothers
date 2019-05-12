@@ -16,8 +16,9 @@ PROJECTILE_RATE = 500
 PROJECTILE_DAMAGE = 50
 ENEMY_COOLDOWN = 1000
 MOB_RADIUS = 50
+SLOW_COOLDOWN = 3000
 
 TEXTBOX_DELAY = 750
 
-ITEMS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
-VISITS = {"shop": False}
+STATUS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
+SHOP = {"shop": False, 'icebow': False, 'triplebow': False}

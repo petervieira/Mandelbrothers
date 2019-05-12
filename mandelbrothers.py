@@ -50,7 +50,7 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'wall', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp'])
+		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -111,7 +111,15 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'R')
 			if tile_object.name == 'flame':
 				Mob(self,tile_object.x,tile_object.y,'F')
-
+			if tile_object.name == 'golem':
+				Mob(self,tile_object.x,tile_object.y,'G')
+			if tile_object.name == 'lantern':
+				Mob(self,tile_object.x,tile_object.y,'L')
+			if tile_object.name == 'bear':
+				Mob(self,tile_object.x,tile_object.y,'B')
+			if tile_object.name == 'octodaddy':
+				Mob(self,tile_object.x,tile_object.y,'O')
+				
 	def main_menu(self):
 		font = pg.font.Font(pg.font.get_default_font(), 64)
 		surface = font.render('Mandelbrothers', True, (255, 255, 255))
@@ -153,46 +161,39 @@ class Game:
 			time = pg.time.get_ticks()
 			if time - hit.last_attack > ENEMY_COOLDOWN:
 				self.player.health -= hit.damage
-				ITEMS['health'] -= hit.damage
+				STATUS['health'] -= hit.damage
 				hit.last_attack = time
 				self.sounds['hit'].play()
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
-				ITEMS['money'] = 0
-				ITEMS['health'] = 100
-				ITEMS['overVisit'] = 1
-				ITEMS['shopVisit'] = 0
+				STATUS['money'] = 0
+				STATUS['health'] = 100
+				STATUS['overVisit'] = 1
+				STATUS['shopVisit'] = 0
+				SHOP['shop'] = False
+				SHOP['icebow'] = False
+				SHOP['triplebow'] = False
 				self.playing = False
 
 		# mob gets hit by player
 		for hit in pg.sprite.groupcollide(self.mobs, self.projectiles, False, True):
 			self.sounds['hit'].play()
+			if SHOP['icebow']:
+				hit.slowtime = pg.time.get_ticks()
 			hit.health -= PROJECTILE_DAMAGE
-			hit.vel = vector(0,0)
-
-	def drawGrid(self):
-		# outlines tiles
-		for x in range(0, WIDTH, TILESIZE):
-			pg.draw.line(self.screen, (0,0,0), (x, 0), (x, HEIGHT))
-		for y in range(0, HEIGHT, TILESIZE):
-			pg.draw.line(self.screen, (0,0,0), (0, y), (WIDTH, y))
+			if hit.type != 'G' and hit.type != 'B':
+				hit.vel = vector(0,0)
 
 	def drawScreen(self):
 		# renders the screen
 		#pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
-		#self.screen.fill(BACKGROUND_COLOR)
 		self.screen.blit(self.map_img, self.camera.callRect(self.map_rect))
-		#for i in range (0, WIDTH//TILESIZE):
-		#	for j in range (0, HEIGHT//TILESIZE):
-		#		self.screen.blit(self.floor_img, [i*TILESIZE,j*TILESIZE])
-		#self.drawGrid()
 		for sprite in self.all_sprites:
 			if isinstance(sprite, Mob):
 				sprite.drawHealth()
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 			if isinstance(sprite, NPC) and self.interact:
 				sprite.drawTextbox()
-		#pg.draw.rect(self.screen, (255,255,255), self.camera.call(self.player), 2)
 		if not self.interact:
 			draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
 		self.minimap.draw()
