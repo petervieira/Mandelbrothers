@@ -45,7 +45,11 @@ class Game:
 		self.load_data()
 
 	def load_data(self):
-		gameFolder = path.dirname(__file__)
+		if getattr(sys, 'frozen', False):
+		    gameFolder = os.path.dirname(sys.executable)
+		else:
+		    gameFolder = os.path.dirname(os.path.realpath(__file__))
+
 		pg.mixer.music.load('music/theme.wav')
 		pg.mixer.music.set_volume(.5)
 		pg.mixer.music.play(-1, 0.0)
