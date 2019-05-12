@@ -57,7 +57,7 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother'])
+		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'health'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -102,6 +102,7 @@ class Game:
 		self.npcs = pg.sprite.Group()
 		self.projectiles = pg.sprite.Group()
 		self.warps = pg.sprite.Group()
+		self.items = pg.sprite.Group()
 
 		self.camera = Cam(self.map.width, self.map.height)
 
@@ -132,6 +133,8 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'B')
 			if tile_object.name == 'octodaddy':
 				Mob(self,tile_object.x,tile_object.y,'O')
+			if tile_object.name in ['ice-bow', 'triple', 'explosive', 'shoot', 'damage', 'armor', 'health', 'end-game']:
+				Item(self, (tile_object.x, tile_object.y), tile_object.name)
 
 	def main_menu(self):
 		font = pg.font.Font(pg.font.get_default_font(), 64)
@@ -201,10 +204,15 @@ class Game:
 		# renders the screen
 		#pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 		self.screen.blit(self.map_img, self.camera.callRect(self.map_rect))
-		for sprite in self.all_sprites:
-			if isinstance(sprite, Mob):
-				sprite.drawHealth()
+		
+		for sprite in self.items:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
+
+		for sprite in self.all_sprites:
+			if not isinstance(sprite, Item):
+				if isinstance(sprite, Mob):
+					sprite.drawHealth()
+				self.screen.blit(sprite.image, self.camera.call(sprite))
 
 		if not self.interact:
 			draw_player_health(self.screen, 256, 728, self.player.health / self.player.fullHealth)

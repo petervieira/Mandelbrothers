@@ -470,3 +470,12 @@ class WarpZone(pg.sprite.Sprite):
 				self.game.map_rect = self.game.map_img.get_rect()
 				self.game.minimap.update()
 				self.game.newGame()
+
+class Item(pg.sprite.Sprite):
+	def __init__(self, game, pos, type):
+		self.groups = game.all_sprites, game.items
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.pos = pos
+		self.game = game
+		self.image = game.sprites['health']
+		self.rect = pg.Rect(pos[0], pos[1], self.image.get_rect().width, self.image.get_rect().height)
