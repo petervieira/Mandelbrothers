@@ -16,3 +16,4 @@ class Textbox:
 		pg.draw.rect(self.game.screen, (0, 0, 0), pg.Rect(self.pos, self.size))
 		surface = self.font.render(self.text, 1, (255, 255, 255), (0, 0, 0))
 		self.game.screen.blit(surface, (40 + WIDTH / 2 - self.font.size(self.text)[0] / 2, self.game.screen.get_height() - 64))  # put it onto the screen
+		self.game.screen.blit(pg.font.Font(pg.font.get_default_font(), 50).render('Z', 1, (255, 0, 255), (80, 80, 80)), (WIDTH - 32, self.game.screen.get_height() - 120))

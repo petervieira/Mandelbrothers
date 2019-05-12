@@ -330,10 +330,16 @@ class NPC(pg.sprite.Sprite):
 		self.textboxDelay = 0
 		self.textboxIndex = 0
 		self.textboxes = [
-			Textbox("Egads! You've broken my floor!", self.game, self.image),
+			Textbox("Egads! You have broken my floor!", self.game, self.image),
 			Textbox("...", self.game, self.image),
-			Textbox("Huh? You want to shop?", self.game, self.image),
-			Textbox("The price is doubled for you, sir", self.game, self.image)
+			Textbox("Huh? You... You are not from Mandelbrot...", self.game, self.image),
+			Textbox("You whippersnappers always trespass into forbidden lands", self.game, self.image),
+			Textbox("It is not safe here. Not anymore...", self.game, self.image),
+			Textbox("The overworld is infested with ravenous creatures these days", self.game, self.image),
+			Textbox("It is foolish to wander around in this corrupted nation", self.game, self.image),
+			Textbox("...though I suppose you may use my shop if you wish", self.game, self.image),
+			Textbox("...", self.game, self.image),
+			Textbox("Good luck, kid", self.game, self.image)
 		]
 
 	def update(self):
