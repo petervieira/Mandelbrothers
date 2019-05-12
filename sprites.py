@@ -197,6 +197,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 30
 			self.speed = 100
 			self.coins = 1
+			self.ghost = False
 		elif type == 'R':
 			self.image = game.sprites['reaper']
 			self.health = 150
@@ -204,6 +205,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 50
 			self.speed = 150
 			self.coins = 2
+			self.ghost = True
 		elif type == 'S':
 			self.image = game.sprites['snail']
 			self.health = 50
@@ -211,6 +213,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 5
 			self.speed = 10
 			self.coins = 0
+			self.ghost = False
 		elif type == 'F':
 			self.image = game.sprites['flame']
 			self.health = 175
@@ -218,6 +221,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 60
 			self.speed = 50
 			self.coins = 3
+			self.ghost = False
 		elif type == 'G':
 			self.image = game.sprites['golem']
 			self.health = 500
@@ -225,6 +229,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 100
 			self.speed = 100
 			self.coins = 15
+			self.ghost = False
 		elif type == 'L':
 			self.image = game.sprites['lantern']
 			self.health = 250
@@ -232,6 +237,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 70
 			self.speed = 250
 			self.coins = 8
+			self.ghost = True
 		elif type == 'B':
 			self.image = game.sprites['bear']
 			self.health = 300
@@ -239,6 +245,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 80
 			self.speed = 150
 			self.coins = 10
+			self.ghost = False
 		elif type == 'O':
 			self.image = game.sprites['octodaddy']
 			self.health = 50000
@@ -246,6 +253,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 200
 			self.speed = 0
 			self.coins = 1000
+			self.ghost = False
 
 		self.default_image = self.image
 		self.rect = self.image.get_rect()
@@ -277,7 +285,7 @@ class Mob(pg.sprite.Sprite):
 		self.rect = self.image.get_rect()
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
-		
+
 		if abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y) < 700:
 			self.acc = vector(1, 0).rotate(-self.vec)
 			self.avoid_mobs()
@@ -293,9 +301,11 @@ class Mob(pg.sprite.Sprite):
 			self.vel += self.acc * self.game.dt
 			self.pos += self.vel * self.game.dt + .5 * self.acc * self.game.dt ** 2
 			self.rect.x = self.pos.x
-			collision(self, self.game.boundaries,'x')
+			if not self.ghost:
+				collision(self, self.game.boundaries, 'x')
 			self.rect.y = self.pos.y
-			collision(self, self.game.boundaries,'y')
+			if not self.ghost:
+				collision(self, self.game.boundaries, 'y')
 		if self.health <= 0:
 			# spawn coins around the enemy
 			for i in range(0, self.coins):
@@ -393,7 +403,7 @@ class Projectile(pg.sprite.Sprite):
 				self.image = game.sprites['arrow']
 			self.image = pg.transform.rotate(self.image, -90)
 			self.image = pg.transform.rotate(self.image, math.atan2(dir.y * -1,dir.x)*180/math.pi)
-			
+
 		self.rect = self.image.get_rect()
 		self.pos = vector(pos)
 		self.rect.x = pos.x
