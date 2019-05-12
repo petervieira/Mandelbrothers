@@ -44,6 +44,8 @@ class Game:
 		self.textboxIndex = 0
 		self.textboxDelay = 0
 		self.load_data()
+		STATUS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
+		SHOP = {"shop": False, 'icebow': True, 'triplebow': True}
 
 	def load_data(self):
 		if getattr(sys, 'frozen', False):
@@ -211,6 +213,9 @@ class Game:
 		if self.interact:
 			self.textboxes[self.textboxIndex].render()
 
+		for hit in pg.sprite.spritecollide(self.player, self.items, False):
+			hit.draw_textbox()
+
 		self.screen.blit(self.sprites['coin'], (16, 16))
 		font = pg.font.Font(pg.font.match_font('papyrus'), 48)
 		surface = font.render(str(self.player.money), True, (255, 255, 255))
@@ -258,13 +263,6 @@ class Game:
 						self.newGame()
 						self.on_main_menu = False
 					elif self.game_over:
-						STATUS['money'] = 0
-						STATUS['health'] = 100
-						STATUS['overVisit'] = 1
-						STATUS['shopVisit'] = 0
-						SHOP['shop'] = False
-						SHOP['icebow'] = False
-						SHOP['triplebow'] = False
 						self.playing = False
 				elif event.key == pg.K_p:
 					if self.paused:

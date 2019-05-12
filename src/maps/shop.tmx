@@ -128,8 +128,6 @@
   <object id="36" name="wall" x="768" y="1344" width="640" height="64"/>
   <object id="37" name="overworld" x="640" y="1344" width="64" height="64"/>
   <object id="38" name="overworld" x="704" y="1344" width="64" height="64"/>
-  <object id="60" name="armor" x="1212" y="548" width="64" height="64"/>
-  <object id="61" name="health" x="1212" y="612" width="64" height="64"/>
   <object id="68" name="damage" x="959.992" y="639.992" width="64" height="64"/>
   <object id="69" name="end-game" x="959.992" y="831.992" width="64" height="64"/>
   <object id="70" name="triple" x="383.992" y="703.992" width="64" height="64"/>

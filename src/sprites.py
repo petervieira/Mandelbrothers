@@ -479,3 +479,11 @@ class Item(pg.sprite.Sprite):
 		self.game = game
 		self.image = game.sprites['health']
 		self.rect = pg.Rect(pos[0], pos[1], self.image.get_rect().width, self.image.get_rect().height)
+		self.cost = ITEMS[type]['cost']
+		self.desc = ITEMS[type]['desc']
+
+	def draw_textbox(self):
+		rect = pg.Rect(0, 0, 256, 128)
+		rect.center = (self.rect.x, self.rect.y - 100)
+		pg.draw.rect(self.game.screen, (200, 200, 200), pg.Rect((rect.x - 2, rect.y - 2), (rect.width + 4, rect.height + 4)).move(self.game.camera.camera.topleft))
+		pg.draw.rect(self.game.screen, (0, 0, 0), rect.move(self.game.camera.camera.topleft))
