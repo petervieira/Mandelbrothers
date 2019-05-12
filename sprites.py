@@ -337,8 +337,6 @@ class NPC(pg.sprite.Sprite):
 		self.rect.x = self.pos.x
 		self.rect.y = self.pos.y
 		self.vec = 0
-		self.textboxDelay = 0
-		self.textboxIndex = 0
 		self.textboxes = [
 			Textbox("Egads! You have broken my floor!", self.game, self.image),
 			Textbox("...", self.game, self.image),
@@ -359,6 +357,7 @@ class NPC(pg.sprite.Sprite):
 			if SHOP["shop"] == False:
 					self.game.interact = True
 					SHOP["shop"] = True
+					self.game.textboxes = self.textboxes
 			if self.distance < 150:
 				# rotate npc based on position relative to player
 				if self.vec > -45 and self.vec < 45:
@@ -369,27 +368,15 @@ class NPC(pg.sprite.Sprite):
 					self.image = self.game.sprites['oldman_left']
 				elif self.vec < -45 and self.vec > -135:
 					self.image = self.game.sprites['oldman']
-			if pg.key.get_pressed()[pg.K_z]:
-				if not self.game.interact and self.rect.colliderect(self.game.player.rect):
-					self.game.interact = True
-					randint = random.randint(1,10)
-					if randint == 1:
-						self.textboxes = [Textbox("How was the weather up there?", self.game, self.image)]
-					elif randint > 1 and randint < 5:
-						self.textboxes = [Textbox("It's a bit chilly down here...", self.game, self.image)]
-					else:
-						self.textboxes = [Textbox("Buy anything you like!", self.game, self.image)]
-				if self.game.interact and self.textboxDelay > TEXTBOX_DELAY and self.textboxIndex < len(self.textboxes) - 1:
-					self.textboxDelay = 0
-					self.textboxIndex += 1
-
-			if self.game.interact and self.textboxIndex == len(self.textboxes) - 1 and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
-				self.textboxIndex = 0
-				self.game.interact = False
-			self.textboxDelay += self.game.dt * 1000
-
-	def drawTextbox(self):
-		self.textboxes[self.textboxIndex].render()
+			if pg.key.get_pressed()[pg.K_z] and not self.game.interact and self.rect.colliderect(self.game.player.rect):
+				self.game.interact = True
+				randint = random.randint(1,10)
+				if randint == 1:
+					self.game.textboxes = [Textbox("How was the weather up there?", self.game, self.image)]
+				elif randint > 1 and randint < 5:
+					self.game.textboxes = [Textbox("It's a bit chilly down here...", self.game, self.image)]
+				else:
+					self.game.textboxes = [Textbox("Buy anything you like!", self.game, self.image)]
 
 class Projectile(pg.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):

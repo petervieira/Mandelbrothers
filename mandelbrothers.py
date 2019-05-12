@@ -31,15 +31,17 @@ class Game:
 		pg.mixer.pre_init(44100, -16, 2, 2048)
 		pg.mixer.init()
 		pg.init()
-		self.screen = pg.display.set_mode((WIDTH, HEIGHT)) # add parameter ,pg.FULLSCREEN when finished
+		self.screen = pg.display.set_mode((WIDTH, HEIGHT)) # add parameter, pg.FULLSCREEN when finished
 		pg.display.set_caption(TITLE)
 		self.clock = pg.time.Clock()
 		# pg.key.set_repeat(250, 100) # while holding down key, parameter 1 is number of milliseconds before game performs key press twice. It will then occur every (parameter 2) milliseconds
 		self.on_main_menu = True
 		self.paused = False
-		self.interact = False
+		self.interact = True
 		self.minimap = Minimap(self)
 		self.sprites = {}
+		self.textboxIndex = 0
+		self.textboxDelay = 0
 		self.load_data()
 
 	def load_data(self):
@@ -70,6 +72,12 @@ class Game:
 			('coin', 32, 32)
 		])
 		self.load_sounds(['hit', 'shoot', 'coin'])
+		self.textboxes = [
+			Textbox('Welcome to Mandelbrothers!', self, self.sprites['oldman']),
+			Textbox('Use the WASD keys or the arrow keys to move around.', self, self.sprites['oldman']),
+			Textbox('Use Z or SPACE to shoot, and Z to interact with people.', self, self.sprites['oldman']),
+			Textbox('The goal is to make it to the portal at the top of the map.', self, self.sprites['oldman']),
+			Textbox('Good luck!', self, self.sprites['oldman'])]
 
 	def load_sprites(self, sprites):
 		for name in sprites:
@@ -175,6 +183,11 @@ class Game:
 				SHOP['triplebow'] = False
 				self.playing = False
 
+		if self.interact and self.textboxIndex == len(self.textboxes) - 1 and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
+			self.textboxIndex = 0
+			self.interact = False
+		self.textboxDelay += self.dt * 1000
+
 		# mob gets hit by player
 		for hit in pg.sprite.groupcollide(self.mobs, self.projectiles, False, True):
 			self.sounds['hit'].play()
@@ -192,11 +205,13 @@ class Game:
 			if isinstance(sprite, Mob):
 				sprite.drawHealth()
 			self.screen.blit(sprite.image, self.camera.call(sprite))
-			if isinstance(sprite, NPC) and self.interact:
-				sprite.drawTextbox()
+
 		if not self.interact:
 			draw_player_health(self.screen,256,728,self.player.health/self.player.fullHealth)
 		self.minimap.draw()
+
+		if self.interact:
+			self.textboxes[self.textboxIndex].render()
 
 		self.screen.blit(self.sprites['coin'], (16, 16))
 		font = pg.font.Font(pg.font.match_font('papyrus'), 48)
@@ -231,6 +246,9 @@ class Game:
 					elif not self.on_main_menu:
 						pg.mixer.music.pause()
 						self.paused = True
+				elif event.key == pg.K_z and self.interact and self.textboxDelay > TEXTBOX_DELAY and self.textboxIndex < len(self.textboxes) - 1:
+						self.textboxDelay = 0
+						self.textboxIndex += 1
 
 # create the game and run it
 while True:
