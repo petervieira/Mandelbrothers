@@ -502,7 +502,7 @@ class Item(pg.sprite.Sprite):
 		self.type = type
 
 	def update(self):
-		if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_B]:
+		if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_b]:
 			if not SHOP[self.type]:
 				if self.game.player.money >= self.cost:
 					self.game.player.money -= self.cost
