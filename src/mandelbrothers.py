@@ -46,7 +46,7 @@ class Game:
 		self.textboxIndex = 0
 		self.textboxDelay = 0
 		self.load_data()
-		
+
 
 	def load_data(self):
 		if getattr(sys, 'frozen', False):
@@ -140,7 +140,7 @@ class Game:
 				Item(self, (tile_object.x, tile_object.y), tile_object.name)
 
 		SHOP['health'] = False
-		
+
 	def main_menu(self):
 		self.screen.blit(self.sprites['menu'], (0,0))
 		pg.display.flip()
@@ -265,7 +265,7 @@ class Game:
 			self.screen.blit(surface, rect)
 			self.screen.blit(surface2, rect2)
 			self.screen.blit(surface3, rect3)
-			
+
 		if self.win:
 			font = pg.font.Font(pg.font.match_font('papyrus'), 96)
 			surface = font.render('Congrats! You win!', True, (255, 255, 255))
