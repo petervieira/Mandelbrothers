@@ -238,7 +238,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 100
 			self.speed = 100
 			self.maxSpeed = 100
-			self.coins = 15
+			self.coins = 10
 			self.ghost = False
 		elif type == 'L':
 			self.image = game.sprites['lantern']
@@ -247,7 +247,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 70
 			self.speed = 250
 			self.maxSpeed = 250
-			self.coins = 8
+			self.coins = 15
 			self.ghost = True
 		elif type == 'B':
 			self.image = game.sprites['bear']
@@ -256,7 +256,7 @@ class Mob(pg.sprite.Sprite):
 			self.damage = 80
 			self.speed = 150
 			self.maxSpeed = 150
-			self.coins = 10
+			self.coins = 8
 			self.ghost = False
 		elif type == 'O':
 			self.image = game.sprites['octodaddy']
