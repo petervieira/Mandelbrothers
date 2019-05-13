@@ -136,7 +136,7 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'B')
 			if tile_object.name == 'octodaddy':
 				Mob(self,tile_object.x,tile_object.y,'O')
-			if tile_object.name in ['icebow', 'triplebow', 'shoot', 'damage', 'armor', 'health', 'end-game']:
+			if tile_object.name in ['icebow', 'triplebow', 'shoot', 'damage', 'armor', 'health', 'end-game'] and not SHOP[tile_object.name]:
 				Item(self, (tile_object.x, tile_object.y), tile_object.name)
 
 		SHOP['health'] = False
