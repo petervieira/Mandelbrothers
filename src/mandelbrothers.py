@@ -154,7 +154,7 @@ class Game:
 			if self.on_main_menu:
 				self.main_menu()
 			else:
-				if not (self.paused or self.win or self.game_over):
+				if not (self.paused or self.game_over) and (not self.win or self.interact):
 					self.update()
 				self.drawScreen()
 
@@ -192,7 +192,7 @@ class Game:
 				STATUS['overVisit'] = 1
 				STATUS['shopvisit'] = 0
 
-		if self.interact and self.textboxIndex == len(self.textboxes) - 1 and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
+		if self.interact and self.textboxIndex == len(self.textboxes) - 1 and self.textboxDelay > TEXTBOX_DELAY and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
 			self.textboxIndex = 0
 			self.interact = False
 		self.textboxDelay += self.dt * 1000
@@ -223,15 +223,16 @@ class Game:
 			if not isinstance(sprite, Item):
 				if isinstance(sprite, Mob):
 					sprite.drawHealth()
+				elif isinstance(sprite, Player):
+					pg.draw.ellipse(self.screen, (32, 32, 32), pg.Rect(sprite.rect.x + 8, sprite.rect.y + 48, sprite.rect.width - 16, 16).move(self.camera.camera.topleft))
 				self.screen.blit(sprite.image, self.camera.call(sprite))
-
-		if not self.interact:
-			draw_player_health(self.screen, 256, 728, self.player.health / self.player.fullHealth)
 
 		self.minimap.draw()
 
 		if self.interact:
 			self.textboxes[self.textboxIndex].render()
+		else:
+			draw_player_health(self.screen, 256, 728, self.player.health / self.player.fullHealth)
 
 		for hit in pg.sprite.spritecollide(self.player, self.items, False):
 			hit.draw_textbox()
@@ -244,7 +245,7 @@ class Game:
 		self.screen.blit(surface, rect)
 
 		if self.paused:
-			font = pg.font.Font(pg.font.get_default_font(), 64)
+			font = pg.font.Font(pg.font.get_default_font(), 32)
 			surface = font.render('Paused', True, (255, 255, 255))
 			rect = surface.get_rect()
 			rect.center = (WIDTH // 2, HEIGHT // 2)
@@ -252,7 +253,7 @@ class Game:
 
 		if self.game_over:
 			font = pg.font.Font(pg.font.match_font('papyrus'), 96)
-			font2 = pg.font.Font(pg.font.match_font('papyrus'), 64)
+			font2 = pg.font.Font(pg.font.match_font('papyrus'), 32)
 			surface = font.render('Game Over', True, (255, 255, 255))
 			surface2 = font2.render(f'Made it to wave {self.wave}', True, (255, 255, 255))
 			surface3 = font2.render('Press space to continue', True, (255, 255, 255))
@@ -266,7 +267,7 @@ class Game:
 			self.screen.blit(surface2, rect2)
 			self.screen.blit(surface3, rect3)
 
-		if self.win:
+		if self.win and not self.interact:
 			font = pg.font.Font(pg.font.match_font('papyrus'), 96)
 			surface = font.render('Congrats! You win!', True, (255, 255, 255))
 			rect = surface.get_rect()
@@ -291,7 +292,7 @@ class Game:
 						self.on_main_menu = False
 					elif self.game_over:
 						self.playing = False
-					elif self.win:
+					elif self.win and not self.interact:
 						self.playing = False
 				elif event.key == pg.K_p:
 					if self.paused:

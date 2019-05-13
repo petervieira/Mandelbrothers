@@ -502,41 +502,47 @@ class Item(pg.sprite.Sprite):
 		self.type = type
 
 	def update(self):
-		if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_b]:
-			if not SHOP[self.type]:
-				if self.game.player.money >= self.cost:
-					self.game.player.money -= self.cost
-					STATUS['money'] -= self.cost
-					if self.type == 'health':
-						self.game.player.health = self.game.player.fullHealth
-						STATUS['health'] = self.game.player.fullHealth
-						SHOP[self.type] = True
-					elif self.type == 'end-game':
-						self.game.win = True
-					elif self.type == 'armor':
-						self.game.player.fullHealth = 200
-						STATUS['fullHealth'] = 200
-						SHOP[self.type] = True
-						self.kill()
-					elif self.type in ['icebow', 'shoot', 'damage', 'triplebow']:
-						SHOP[self.type] = True
-						self.kill()
-					else:
-						SHOP[self.type] = True
+		if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_b] and not SHOP[self.type] and self.game.player.money >= self.cost:
+			self.game.sounds['coin'].play()
+			self.game.player.money -= self.cost
+			STATUS['money'] -= self.cost
+			if self.type == 'health':
+				self.game.player.health = self.game.player.fullHealth
+				STATUS['health'] = self.game.player.fullHealth
+				SHOP[self.type] = True
+			elif self.type == 'end-game':
+				self.game.interact = True
+				self.game.textboxIndex = 0
+				self.game.textboxDelay = 0
+				self.game.textboxes = [Textbox("Brother, you've freed me from the ice!", self.game, self.game.sprites['brother']),
+									   Textbox("The citizens of Mandelbrot will forever be grateful.", self.game, self.game.sprites['brother'])]
+				self.game.win = True
+			elif self.type == 'armor':
+				self.game.player.fullHealth = 200
+				STATUS['fullHealth'] = 200
+				SHOP[self.type] = True
+				self.kill()
+			elif self.type in ['icebow', 'shoot', 'damage', 'triplebow']:
+				SHOP[self.type] = True
+				self.kill()
+			else:
+				SHOP[self.type] = True
 
 	def draw_textbox(self):
 		rect = pg.Rect(0, 0, 256, 128)
 		rect.center = (self.rect.x + self.rect.width / 2, self.rect.y - 100)
 		rect = rect.move(self.game.camera.camera.topleft)
 
-		pg.draw.rect(self.game.screen, (200, 200, 200), pg.Rect((rect.x - 2, rect.y - 2), (rect.width + 4, rect.height + 4)))
+		color = (128, 255, 128) if self.game.player.money >= self.cost else (255, 128, 128)
+
+		pg.draw.rect(self.game.screen, color, pg.Rect((rect.x - 2, rect.y - 2), (rect.width + 4, rect.height + 4)))
 		pg.draw.rect(self.game.screen, (0, 0, 0), rect)
 
 		font = pg.font.Font(pg.font.match_font('Consolas'), 14)
-		surface = font.render(self.desc[0], True, (255, 255, 255))
+		surface = font.render(self.desc[0], True, color)
 		self.game.screen.blit(surface, (rect.x + 8, rect.y + 8))
-		surface = font.render(self.desc[1], True, (255, 255, 255))
+		surface = font.render(self.desc[1], True, color)
 		self.game.screen.blit(surface, (rect.x + 8, rect.y + 24))
 
-		surface = font.render(f'Press B to buy ({self.cost} coins)', True, (255, 255, 255))
+		surface = font.render(f'Press B to buy ({self.cost} coins)', True, color)
 		self.game.screen.blit(surface, (rect.x + 8, rect.y + rect.height - 16))

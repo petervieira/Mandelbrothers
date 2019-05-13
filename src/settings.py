@@ -20,7 +20,7 @@ SLOW_COOLDOWN = 3000
 
 TEXTBOX_DELAY = 750
 
-STATUS = {"money": 0, "health": 100, "fullHealth": 100, "overVisit": 1, "shopVisit": 0}
+STATUS = {"money": 1000, "health": 100, "fullHealth": 100, "overVisit": 1, "shopVisit": 0}
 SHOP = {"shop": False, 'icebow': False, 'triplebow': False, 'damage': False, 'shoot': False, 'armor': False, 'health': False, 'end-game': False}
 
 ITEMS = {
