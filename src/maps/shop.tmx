@@ -128,14 +128,13 @@
   <object id="36" name="wall" x="768" y="1344" width="640" height="64"/>
   <object id="37" name="overworld" x="640" y="1344" width="64" height="64"/>
   <object id="38" name="overworld" x="704" y="1344" width="64" height="64"/>
-  <object id="68" name="damage" x="959.992" y="639.992" width="64" height="64"/>
-  <object id="69" name="end-game" x="959.992" y="831.992" width="64" height="64"/>
-  <object id="70" name="triple" x="383.992" y="703.992" width="64" height="64"/>
-  <object id="71" name="ice-bow" x="383.992" y="639.992" width="64" height="64"/>
-  <object id="72" name="explosive" x="383.992" y="767.992" width="64" height="64"/>
-  <object id="73" name="shoot" x="383.992" y="831.992" width="64" height="64"/>
-  <object id="74" name="armor" x="959.992" y="703.992" width="64" height="64"/>
-  <object id="75" name="health" x="959.992" y="767.992" width="64" height="64"/>
+  <object id="68" name="damage" x="384" y="768" width="64" height="64"/>
+  <object id="69" name="end-game" x="704" y="1024" width="64" height="64"/>
+  <object id="70" name="triplebow" x="896" y="576" width="64" height="64"/>
+  <object id="71" name="icebow" x="448" y="576" width="64" height="64"/>
+  <object id="73" name="shoot" x="512" y="896" width="64" height="64"/>
+  <object id="74" name="armor" x="960" y="768" width="64" height="64"/>
+  <object id="75" name="health" x="832" y="896" width="64" height="64"/>
  </objectgroup>
  <objectgroup id="12" name="Items"/>
 </map>

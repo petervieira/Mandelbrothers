@@ -38,14 +38,15 @@ class Game:
 		self.on_main_menu = True
 		self.paused = False
 		self.game_over = False
+		self.win = False
 		self.interact = True
 		self.minimap = Minimap(self)
 		self.sprites = {}
+		self.wave = 1
 		self.textboxIndex = 0
 		self.textboxDelay = 0
 		self.load_data()
-		STATUS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
-		SHOP = {"shop": False, 'icebow': True, 'triplebow': True}
+		
 
 	def load_data(self):
 		if getattr(sys, 'frozen', False):
@@ -59,7 +60,7 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'health', 'menu'])
+		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'triplearrow', 'speed', 'damage', 'end-game', 'health', 'menu', 'shield'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -135,9 +136,11 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'B')
 			if tile_object.name == 'octodaddy':
 				Mob(self,tile_object.x,tile_object.y,'O')
-			if tile_object.name in ['ice-bow', 'triple', 'explosive', 'shoot', 'damage', 'armor', 'health', 'end-game']:
+			if tile_object.name in ['icebow', 'triplebow', 'shoot', 'damage', 'armor', 'health', 'end-game']:
 				Item(self, (tile_object.x, tile_object.y), tile_object.name)
 
+		SHOP['health'] = False
+		
 	def main_menu(self):
 		self.screen.blit(self.sprites['menu'], (0,0))
 		pg.display.flip()
@@ -151,7 +154,7 @@ class Game:
 			if self.on_main_menu:
 				self.main_menu()
 			else:
-				if not (self.paused or self.game_over):
+				if not (self.paused or self.win or self.game_over):
 					self.update()
 				self.drawScreen()
 
@@ -175,6 +178,19 @@ class Game:
 			hit.vel = vector(0,0)
 			if self.player.health <= 0:
 				self.game_over = True
+				SHOP['shop'] = False
+				SHOP['icebow'] = False
+				SHOP['triplebow'] = False
+				SHOP['damage'] = False
+				SHOP['shoot'] = False
+				SHOP['armor'] = False
+				SHOP['health'] = False
+				SHOP['end-game'] = False
+				STATUS['money'] = 0
+				STATUS['health'] = 100
+				STATUS['fullHealth'] = 100
+				STATUS['overVisit'] = 1
+				STATUS['shopvisit'] = 0
 
 		if self.interact and self.textboxIndex == len(self.textboxes) - 1 and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
 			self.textboxIndex = 0
@@ -187,7 +203,11 @@ class Game:
 			self.sounds['hit'].set_volume(.3)
 			if SHOP['icebow']:
 				hit.slowtime = pg.time.get_ticks()
-			hit.health -= PROJECTILE_DAMAGE
+			if SHOP['damage']:
+				damage = PROJECTILE_DAMAGE * 2
+			else:
+				damage = PROJECTILE_DAMAGE
+			hit.health -= damage
 			if hit.type != 'G' and hit.type != 'B':
 				hit.vel = vector(0,0)
 
@@ -234,7 +254,7 @@ class Game:
 			font = pg.font.Font(pg.font.match_font('papyrus'), 96)
 			font2 = pg.font.Font(pg.font.match_font('papyrus'), 64)
 			surface = font.render('Game Over', True, (255, 255, 255))
-			surface2 = font2.render(f'Made it to wave {STATUS["overVisit"]}', True, (255, 255, 255))
+			surface2 = font2.render(f'Made it to wave {self.wave}', True, (255, 255, 255))
 			surface3 = font2.render('Press space to continue', True, (255, 255, 255))
 			rect = surface.get_rect()
 			rect2 = surface2.get_rect()
@@ -245,6 +265,13 @@ class Game:
 			self.screen.blit(surface, rect)
 			self.screen.blit(surface2, rect2)
 			self.screen.blit(surface3, rect3)
+			
+		if self.win:
+			font = pg.font.Font(pg.font.match_font('papyrus'), 96)
+			surface = font.render('Congrats! You win!', True, (255, 255, 255))
+			rect = surface.get_rect()
+			rect.center = (WIDTH // 2, HEIGHT // 2)
+			self.screen.blit(surface, rect)
 
 		pg.display.flip()
 
@@ -263,6 +290,8 @@ class Game:
 						self.newGame()
 						self.on_main_menu = False
 					elif self.game_over:
+						self.playing = False
+					elif self.win:
 						self.playing = False
 				elif event.key == pg.K_p:
 					if self.paused:

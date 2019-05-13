@@ -42,7 +42,7 @@ class Player(pg.sprite.Sprite):
 		self.pos = vector(x,y)
 		self.last_shot = 0
 		self.health = STATUS['health']
-		self.fullHealth = 100
+		self.fullHealth = STATUS['fullHealth']
 		self.money = STATUS['money']
 		self.walkcount = 0
 		self.left = False
@@ -120,7 +120,11 @@ class Player(pg.sprite.Sprite):
 			# check attacks
 			if (keys[pg.K_z] or keys[pg.K_SPACE]) and not keys[pg.K_LSHIFT]:
 				type = 'arrow'
-				if self.last_shot > PROJECTILE_RATE:
+				if SHOP['shoot']:
+					rate = PROJECTILE_RATE / 2
+				else:
+					rate = PROJECTILE_RATE
+				if self.last_shot > rate:
 					self.last_shot = 0
 					dir = vector(0,0)
 					dir2 = vector(0,0)
@@ -466,6 +470,7 @@ class WarpZone(pg.sprite.Sprite):
 				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld' + str(STATUS['overVisit']) + '.tmx'))
 				if STATUS['overVisit'] < 6:
 					STATUS['overVisit'] += 1
+				self.game.wave += 1
 				self.game.map_img = self.game.map.make_map()
 				self.game.map_rect = self.game.map_img.get_rect()
 				self.game.minimap.update()
@@ -477,10 +482,43 @@ class Item(pg.sprite.Sprite):
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.pos = pos
 		self.game = game
-		self.image = game.sprites['health']
+		if type == 'icebow':
+			self.image = game.sprites['icebow']
+		elif type == 'health':
+			self.image = game.sprites['health']
+		elif type == 'armor':
+			self.image = game.sprites['shield']
+		elif type == 'triplebow':
+			self.image = game.sprites['triplearrow']
+		elif type == 'end-game':
+			self.image = game.sprites['end-game']
+		elif type == 'shoot':
+			self.image = game.sprites['speed']
+		elif type == 'damage':
+			self.image = game.sprites['damage']
 		self.rect = pg.Rect(pos[0], pos[1], self.image.get_rect().width, self.image.get_rect().height)
 		self.cost = ITEMS[type]['cost']
 		self.desc = ITEMS[type]['desc']
+		self.type = type
+	
+	def update(self):
+		if self.rect.colliderect(self.game.player.rect) and pg.key.get_pressed()[pg.K_SPACE]:
+			if SHOP[self.type] == False:
+				if self.game.player.money >= self.cost:
+					self.game.player.money -= self.cost
+					STATUS['money'] -= self.cost
+					if self.type == 'health':
+						self.game.player.health  = self.game.player.fullHealth
+						STATUS['health'] = self.game.player.fullHealth
+						SHOP[self.type] = True
+					elif self.type == 'end-game':
+						self.game.win = True
+					elif self.type == 'armor':
+						self.game.player.fullHealth = 200
+						STATUS['fullHealth'] = 200
+						SHOP[self.type] = True
+					else:
+						SHOP[self.type] = True
 
 	def draw_textbox(self):
 		rect = pg.Rect(0, 0, 256, 128)

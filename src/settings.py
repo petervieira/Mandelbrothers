@@ -20,16 +20,15 @@ SLOW_COOLDOWN = 3000
 
 TEXTBOX_DELAY = 750
 
-STATUS = {"money": 0, "health": 100, "overVisit": 1, "shopVisit": 0}
-SHOP = {"shop": False, 'icebow': True, 'triplebow': True}
+STATUS = {"money": 0, "health": 100, "fullHealth": 100, "overVisit": 1, "shopVisit": 0}
+SHOP = {"shop": False, 'icebow': False, 'triplebow': False, 'damage': False, 'shoot': False, 'armor': False, 'health': False, 'end-game': False}
 
 ITEMS = {
-    'ice-bow': {'cost': 5, 'desc': ''},
-    'triple': {'cost': 5, 'desc': ''},
-    'explosive': {'cost': 5, 'desc': ''},
-    'shoot': {'cost': 5, 'desc': ''},
-    'damage': {'cost': 5, 'desc': ''},
-    'armor': {'cost': 5, 'desc': ''},
-    'health': {'cost': 5, 'desc': ''},
+    'icebow': {'cost': 50, 'desc': ''},
+    'triplebow': {'cost': 100, 'desc': ''},
+    'shoot': {'cost': 30, 'desc': ''},
+    'damage': {'cost': 40, 'desc': ''},
+    'armor': {'cost': 50, 'desc': ''},
+    'health': {'cost': 20, 'desc': ''},
     'end-game': {'cost': 1000, 'desc': ''}
 }
