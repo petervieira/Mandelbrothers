@@ -208,8 +208,8 @@ class Game:
 			else:
 				damage = PROJECTILE_DAMAGE
 			hit.health -= damage
-			if hit.type != 'G' and hit.type != 'B':
-				hit.vel = vector(0,0)
+			#if hit.type == 'G' and hit.type != 'B':
+			#	hit.vel = vector(0,0)
 
 	def drawScreen(self):
 		# renders the screen
@@ -233,6 +233,11 @@ class Game:
 			self.textboxes[self.textboxIndex].render()
 		else:
 			draw_player_health(self.screen, 256, 728, self.player.health / self.player.fullHealth)
+			font = pg.font.Font(pg.font.match_font('papyrus'), 48)
+			surface = font.render(str(self.player.health), True, (0, 0, 0))
+			rect = surface.get_rect()
+			rect.center = (512, 743)
+			self.screen.blit(surface, rect)
 
 		for hit in pg.sprite.spritecollide(self.player, self.items, False):
 			hit.draw_textbox()

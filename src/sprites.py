@@ -303,13 +303,10 @@ class Mob(pg.sprite.Sprite):
 			self.acc = vector(1, 0).rotate(-self.vec)
 			self.avoid_mobs()
 			time = pg.time.get_ticks()
-			if time - self.slowtime > SLOW_COOLDOWN:
-				self.acc.scale_to_length(self.maxSpeed)
-			else:
+			self.acc.scale_to_length(self.maxSpeed)
+			if time - self.slowtime <= SLOW_COOLDOWN:
 				if self.type != 'B' and self.type != 'G':
-					self.acc.scale_to_length(self.maxSpeed / 3)
-				else:
-					self.acc.scale_to_length(self.maxSpeed)
+					self.vel = vector(0,0)
 			if self.type != 'R' and self.type != 'L':
 				self.acc += self.vel * -1
 			else:

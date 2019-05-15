@@ -16,7 +16,7 @@ PROJECTILE_RATE = 500
 PROJECTILE_DAMAGE = 50
 ENEMY_COOLDOWN = 1000
 MOB_RADIUS = 50
-SLOW_COOLDOWN = 3000
+SLOW_COOLDOWN = 1000
 
 TEXTBOX_DELAY = 750
 
@@ -26,8 +26,8 @@ SHOP = {"shop": False, 'icebow': False, 'triplebow': False, 'damage': False, 'sh
 ITEMS = {
     'icebow': {'cost': 50, 'desc': ['Ice Bow: an ancient bow found', 'in the glaciers of Greenland']},
     'triplebow': {'cost': 100, 'desc': ['Triple Bow: a bow capable of', 'firing three arrows at once']},
-    'shoot': {'cost': 30, 'desc': ['Shoot speed upgrade: makes you', 'fire at a higher rate']},
-    'damage': {'cost': 40, 'desc': ['Damage upgrade: makes your', 'arrows deal more damage']},
+    'shoot': {'cost': 40, 'desc': ['Shoot speed upgrade: makes you', 'fire at a higher rate']},
+    'damage': {'cost': 30, 'desc': ['Damage upgrade: makes your', 'arrows deal more damage']},
     'armor': {'cost': 50, 'desc': ['Armor upgrade: makes you more', 'impervious to enemy damage']},
     'health': {'cost': 20, 'desc': ['Health pack: restores your', 'health fully']},
     'end-game': {'cost': 1000, 'desc': ['Release your brother from', 'the ice, winning the game']}
