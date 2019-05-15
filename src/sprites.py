@@ -121,7 +121,7 @@ class Player(pg.sprite.Sprite):
 			if (keys[pg.K_z] or keys[pg.K_SPACE]) and not keys[pg.K_LSHIFT]:
 				type = 'arrow'
 				if SHOP['shoot']:
-					rate = PROJECTILE_RATE / 2
+					rate = PROJECTILE_RATE / 1.5
 				else:
 					rate = PROJECTILE_RATE
 				if self.last_shot > rate:
@@ -278,6 +278,7 @@ class Mob(pg.sprite.Sprite):
 		self.acc = vector(0,0)
 		self.last_attack = 0
 		self.slowtime = 0
+		self.last_hit = 0
 
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
@@ -288,6 +289,7 @@ class Mob(pg.sprite.Sprite):
 
 	def update(self):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
+		self.last_hit += self.game.dt * 1000
 
 		# rotate enemy based on position relative to player
 		if self.vec > -90 and self.vec < 90:
@@ -319,6 +321,7 @@ class Mob(pg.sprite.Sprite):
 			self.rect.y = self.pos.y
 			if not self.ghost:
 				collision(self, self.game.boundaries, 'y')
+
 		if self.health <= 0:
 			# spawn coins around the enemy
 			for i in range(0, self.coins):
@@ -493,6 +496,8 @@ class Item(pg.sprite.Sprite):
 			self.image = game.sprites['speed']
 		elif type == 'damage':
 			self.image = game.sprites['damage']
+		elif type == 'pierce':
+			self.image = game.sprites['pierce']
 		self.rect = pg.Rect(pos[0], pos[1], self.image.get_rect().width, self.image.get_rect().height)
 		self.cost = ITEMS[type]['cost']
 		self.desc = ITEMS[type]['desc']
@@ -519,7 +524,7 @@ class Item(pg.sprite.Sprite):
 				STATUS['fullHealth'] = 200
 				SHOP[self.type] = True
 				self.kill()
-			elif self.type in ['icebow', 'shoot', 'damage', 'triplebow']:
+			elif self.type in ['icebow', 'shoot', 'damage', 'triplebow', 'pierce']:
 				SHOP[self.type] = True
 				self.kill()
 			else:

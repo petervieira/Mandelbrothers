@@ -60,7 +60,7 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'triplearrow', 'speed', 'damage', 'end-game', 'health', 'menu', 'shield'])
+		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'triplearrow', 'speed', 'damage', 'end-game', 'health', 'menu', 'shield', 'pierce'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -136,7 +136,7 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'B')
 			if tile_object.name == 'octodaddy':
 				Mob(self,tile_object.x,tile_object.y,'O')
-			if tile_object.name in ['icebow', 'triplebow', 'shoot', 'damage', 'armor', 'health', 'end-game'] and not SHOP[tile_object.name]:
+			if tile_object.name in ['icebow', 'triplebow', 'shoot', 'damage', 'armor', 'health', 'end-game', 'pierce'] and not SHOP[tile_object.name]:
 				Item(self, (tile_object.x, tile_object.y), tile_object.name)
 
 		SHOP['health'] = False
@@ -198,17 +198,22 @@ class Game:
 		self.textboxDelay += self.dt * 1000
 
 		# mob gets hit by player projectile
-		collisions = pg.sprite.groupcollide(self.mobs, self.projectiles, False, True)
+		collisions = pg.sprite.groupcollide(self.mobs, self.projectiles, False, False)
 		for hit in collisions:
-			self.sounds['hit'].play()
-			self.sounds['hit'].set_volume(.3)
-			if SHOP['icebow']:
-				hit.slowtime = pg.time.get_ticks()
-			if SHOP['damage']:
-				damage = PROJECTILE_DAMAGE * 2
-			else:
-				damage = PROJECTILE_DAMAGE
-			hit.health -= damage * len(collisions[hit])
+			if hit.last_hit > ENEMY_HIT_COOLDOWN:
+				hit.last_hit = 0
+				self.sounds['hit'].play()
+				self.sounds['hit'].set_volume(.3)
+				if SHOP['icebow']:
+					hit.slowtime = pg.time.get_ticks()
+				if SHOP['damage']:
+					damage = PROJECTILE_DAMAGE * 2
+				else:
+					damage = PROJECTILE_DAMAGE
+				hit.health -= damage * len(collisions[hit])
+				if not SHOP['pierce']:
+					for projectile in collisions[hit]:
+						projectile.kill()
 			#if hit.type == 'G' and hit.type != 'B':
 			#	hit.vel = vector(0,0)
 
