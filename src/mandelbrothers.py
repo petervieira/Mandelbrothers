@@ -197,8 +197,9 @@ class Game:
 			self.interact = False
 		self.textboxDelay += self.dt * 1000
 
-		# mob gets hit by player
-		for hit in pg.sprite.groupcollide(self.mobs, self.projectiles, False, True):
+		# mob gets hit by player projectile
+		collisions = pg.sprite.groupcollide(self.mobs, self.projectiles, False, True)
+		for hit in collisions:
 			self.sounds['hit'].play()
 			self.sounds['hit'].set_volume(.3)
 			if SHOP['icebow']:
@@ -207,7 +208,7 @@ class Game:
 				damage = PROJECTILE_DAMAGE * 2
 			else:
 				damage = PROJECTILE_DAMAGE
-			hit.health -= damage
+			hit.health -= damage * len(collisions[hit])
 			#if hit.type == 'G' and hit.type != 'B':
 			#	hit.vel = vector(0,0)
 
