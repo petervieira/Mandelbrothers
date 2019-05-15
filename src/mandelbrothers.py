@@ -77,7 +77,11 @@ class Game:
 			('electric_snake', 64, 64),
 			('reaper', 64, 64),
 			('snail', 64, 64),
-			('coin', 32, 32)
+			('coin1', 32, 32),
+			('coin2', 32, 32),
+			('coin3', 32, 32),
+			('coin4', 32, 32),
+			('coin5', 32, 32)
 		])
 		self.load_sounds(['hit', 'shoot', 'coin'])
 		self.textboxes = [
@@ -106,6 +110,7 @@ class Game:
 		self.projectiles = pg.sprite.Group()
 		self.warps = pg.sprite.Group()
 		self.items = pg.sprite.Group()
+		self.coins = pg.sprite.Group()
 
 		self.camera = Cam(self.map.width, self.map.height)
 
@@ -248,7 +253,7 @@ class Game:
 		for hit in pg.sprite.spritecollide(self.player, self.items, False):
 			hit.draw_textbox()
 
-		self.screen.blit(self.sprites['coin'], (16, 16))
+		self.screen.blit(self.sprites['coin1'], (16, 16))
 		font = pg.font.Font(pg.font.match_font('papyrus'), 48)
 		surface = font.render(str(self.player.money), True, (255, 255, 255))
 		rect = surface.get_rect()

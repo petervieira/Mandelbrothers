@@ -426,15 +426,20 @@ class Projectile(pg.sprite.Sprite):
 
 class Coin(pg.sprite.Sprite):
 	def __init__(self, game, pos):
-		self.groups = game.all_sprites
+		self.groups = game.all_sprites, game.coins
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.pos = pos
 		self.game = game
-		self.image = game.sprites['coin']
+		self.image = game.sprites['coin1']
+		self.frames = [1, 2, 3, 4, 5, 4, 3, 2]
 		self.rect = self.image.get_rect()
 		self.rect.center = pos
+		self.time = random.randint(0, 79)
 
 	def update(self):
+		self.time = (self.time + 1) % 80
+		self.image = self.game.sprites['coin' + str(self.frames[math.floor(self.time / 10)])]
+
 		if pg.sprite.collide_rect(self, self.game.player):
 			self.game.player.money += 1
 			STATUS['money'] += 1
