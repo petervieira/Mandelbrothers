@@ -279,6 +279,7 @@ class Mob(pg.sprite.Sprite):
 		self.last_attack = 0
 		self.slowtime = 0
 		self.last_hit = 0
+		self.throwtime = 0
 
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
@@ -321,7 +322,11 @@ class Mob(pg.sprite.Sprite):
 			self.rect.y = self.pos.y
 			if not self.ghost:
 				collision(self, self.game.boundaries, 'y')
-
+			if self.type == 'G':
+				time = pg.time.get_ticks()
+				if time - self.throwtime > 2000:
+					self.throwtime = time
+					Projectile(self.game, self.pos + vector(53,80), vector(1,0).rotate(-(self.game.player.pos - self.pos).angle_to(vector(1,0))), 'icyrock')
 		if self.health <= 0:
 			# spawn coins around the enemy
 			for i in range(0, self.coins):
@@ -399,6 +404,7 @@ class Projectile(pg.sprite.Sprite):
 		self.groups = game.all_sprites, game.projectiles
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
+		self.type = type
 		if type == 'arrow':
 			if SHOP['icebow']:
 				self.image = game.sprites['icearrow']
@@ -406,12 +412,16 @@ class Projectile(pg.sprite.Sprite):
 				self.image = game.sprites['arrow']
 			self.image = pg.transform.rotate(self.image, -90)
 			self.image = pg.transform.rotate(self.image, math.atan2(dir.y * -1,dir.x)*180/math.pi)
-
+		elif type == 'icyrock':
+			self.image = game.sprites['icyrock']
 		self.rect = self.image.get_rect()
 		self.pos = vector(pos)
 		self.rect.x = pos.x
 		self.rect.y = pos.y
-		self.vel = dir * PROJECTILE_SPEED
+		if type == 'arrow':
+			self.vel = dir * PROJECTILE_SPEED
+		elif type == 'icyrock':
+			self.vel = dir * PROJECTILE_SPEED / 3
 		self.lifetime = 0
 
 	def update(self):
@@ -421,9 +431,12 @@ class Projectile(pg.sprite.Sprite):
 		self.lifetime += self.game.dt * 1000
 		if pg.sprite.spritecollideany(self, self.game.boundaries):
 			self.kill()
-		if self.lifetime > PROJECTILE_LIFETIME:
-			self.kill()
-
+		if self.type == 'arrow':
+			if self.lifetime > PROJECTILE_LIFETIME:
+				self.kill()
+		elif self.type == 'icyrock':
+			if self.lifetime > PROJECTILE_LIFETIME * 3:
+				self.kill()
 class Coin(pg.sprite.Sprite):
 	def __init__(self, game, pos):
 		self.groups = game.all_sprites, game.coins

@@ -31,6 +31,6 @@ ITEMS = {
     'damage': {'cost': 80, 'desc': ['Damage upgrade: makes your', 'arrows deal more damage']},
     'armor': {'cost': 50, 'desc': ['Armor upgrade: makes you more', 'impervious to enemy damage']},
     'health': {'cost': 20, 'desc': ['Health pack: restores your', 'health fully']},
-    'pierce': {'cost': 30, 'desc': ['Piercing arrows: gold-tipped', 'arrows pierce your enemies']},
+    'pierce': {'cost': 30, 'desc': ['Piercing arrows: gold-tipped', 'arrows that penetrate enemies']},
     'end-game': {'cost': 1000, 'desc': ['Release your brother from', 'the ice, winning the game']}
 }

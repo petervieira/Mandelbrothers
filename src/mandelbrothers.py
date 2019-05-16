@@ -60,7 +60,7 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'triplearrow', 'speed', 'damage', 'end-game', 'health', 'menu', 'shield', 'pierce'])
+		self.load_sprites(['flame', 'arrow', 'icyrock', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'triplearrow', 'speed', 'damage', 'end-game', 'health', 'menu', 'shield', 'pierce'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -181,21 +181,6 @@ class Game:
 				self.sounds['hit'].play()
 				self.sounds['hit'].set_volume(.3)
 			hit.vel = vector(0,0)
-			if self.player.health <= 0:
-				self.game_over = True
-				SHOP['shop'] = False
-				SHOP['icebow'] = False
-				SHOP['triplebow'] = False
-				SHOP['damage'] = False
-				SHOP['shoot'] = False
-				SHOP['armor'] = False
-				SHOP['health'] = False
-				SHOP['end-game'] = False
-				STATUS['money'] = 0
-				STATUS['health'] = 100
-				STATUS['fullHealth'] = 100
-				STATUS['overVisit'] = 1
-				STATUS['shopvisit'] = 0
 
 		if self.interact and self.textboxIndex == len(self.textboxes) - 1 and self.textboxDelay > TEXTBOX_DELAY and any(pg.key.get_pressed()) and not pg.key.get_pressed()[pg.K_z]:
 			self.textboxIndex = 0
@@ -203,24 +188,48 @@ class Game:
 		self.textboxDelay += self.dt * 1000
 
 		# mob gets hit by player projectile
-		collisions = pg.sprite.groupcollide(self.mobs, self.projectiles, False, False)
+		collisions = pg.sprite.groupcollide(self.mobs, self.projectiles, False, False)	
 		for hit in collisions:
-			if hit.last_hit > ENEMY_HIT_COOLDOWN:
-				hit.last_hit = 0
-				self.sounds['hit'].play()
-				self.sounds['hit'].set_volume(.3)
-				if SHOP['icebow']:
-					hit.slowtime = pg.time.get_ticks()
-				if SHOP['damage']:
-					damage = PROJECTILE_DAMAGE * 2
-				else:
-					damage = PROJECTILE_DAMAGE
-				hit.health -= damage * len(collisions[hit])
-				if not SHOP['pierce']:
-					for projectile in collisions[hit]:
-						projectile.kill()
-			#if hit.type == 'G' and hit.type != 'B':
-			#	hit.vel = vector(0,0)
+			for projectile in collisions[hit]:
+				if projectile.type == 'arrow':
+					if hit.last_hit > ENEMY_HIT_COOLDOWN:
+						hit.last_hit = 0
+						self.sounds['hit'].play()
+						self.sounds['hit'].set_volume(.3)
+						if SHOP['icebow']:
+							hit.slowtime = pg.time.get_ticks()
+						if SHOP['damage']:
+							damage = PROJECTILE_DAMAGE * 2
+						else:
+							damage = PROJECTILE_DAMAGE
+						hit.health -= damage * len(collisions[hit])
+						if not SHOP['pierce']:
+							for projectile in collisions[hit]:
+								projectile.kill()
+					if hit.type == 'B':
+						hit.speed = 450
+						hit.maxSpeed = 450
+		
+		for hit in pg.sprite.spritecollide(self.player, self.projectiles, False):
+			if hit.type == 'icyrock':
+				self.player.health -= 15
+				hit.kill()
+
+		if self.player.health <= 0:
+			self.game_over = True
+			SHOP['shop'] = False
+			SHOP['icebow'] = False
+			SHOP['triplebow'] = False
+			SHOP['damage'] = False
+			SHOP['shoot'] = False
+			SHOP['armor'] = False
+			SHOP['health'] = False
+			SHOP['end-game'] = False
+			STATUS['money'] = 0
+			STATUS['health'] = 100
+			STATUS['fullHealth'] = 100
+			STATUS['overVisit'] = 1
+			STATUS['shopvisit'] = 0
 
 	def drawScreen(self):
 		# renders the screen
