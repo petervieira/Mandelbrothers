@@ -45,6 +45,7 @@ class Game:
 		self.wave = 1
 		self.textboxIndex = 0
 		self.textboxDelay = 0
+		self.alpha = 0
 		self.load_data()
 
 
@@ -233,8 +234,13 @@ class Game:
 
 	def drawScreen(self):
 		# renders the screen
-		#pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
+		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
+		#self.map_img.set_alpha(25)
 		self.screen.blit(self.map_img, self.camera.callRect(self.map_rect))
+		temp = pg.Surface((1024, 768))
+		temp.fill((0,0,0))
+		temp.set_alpha(self.alpha)
+		self.screen.blit(temp, (0,0))
 
 		for sprite in self.items:
 			self.screen.blit(sprite.image, self.camera.call(sprite))

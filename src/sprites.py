@@ -488,6 +488,7 @@ class WarpZone(pg.sprite.Sprite):
 				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld' + str(STATUS['overVisit']) + '.tmx'))
 				if STATUS['overVisit'] < 7:
 					STATUS['overVisit'] += 1
+					self.game.alpha += 30
 				self.game.wave += 1
 				self.game.map_img = self.game.map.make_map()
 				self.game.map_rect = self.game.map_img.get_rect()
