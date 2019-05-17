@@ -88,6 +88,7 @@ class Game:
 		self.textboxes = [
 			Textbox('Welcome to Mandelbrothers!', self, self.sprites['brother']),
 			Textbox('Use the WASD keys or the arrow keys to move around.', self, self.sprites['brother']),
+			Textbox('Use SHIFT to sprint, but you can\'t shoot while sprinting.', self, self.sprites['brother']),
 			Textbox('Use Z or SPACE to shoot, and Z to interact with people.', self, self.sprites['brother']),
 			Textbox('The goal is to make it to the portal at the top of the map.', self, self.sprites['brother']),
 			Textbox('Good luck!', self, self.sprites['brother'])]
@@ -189,7 +190,7 @@ class Game:
 		self.textboxDelay += self.dt * 1000
 
 		# mob gets hit by player projectile
-		collisions = pg.sprite.groupcollide(self.mobs, self.projectiles, False, False)	
+		collisions = pg.sprite.groupcollide(self.mobs, self.projectiles, False, False)
 		for hit in collisions:
 			for projectile in collisions[hit]:
 				if projectile.type == 'arrow':
@@ -210,7 +211,7 @@ class Game:
 					if hit.type == 'B':
 						hit.speed = 450
 						hit.maxSpeed = 450
-		
+
 		for hit in pg.sprite.spritecollide(self.player, self.projectiles, False):
 			if hit.type == 'icyrock':
 				self.player.health -= 15
