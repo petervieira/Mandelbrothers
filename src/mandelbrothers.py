@@ -267,20 +267,21 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 
 		for sprite in self.all_sprites:
-			self.screen.blit(sprite.image, self.camera.call(sprite))
 			if not isinstance(sprite, Item):
 				if isinstance(sprite, Mob):
 					if sprite.type != 'O':
 						sprite.drawHealth()
-					else:
-						draw_boss_health(self.screen, 156, 10, sprite.health / sprite.fullHealth)
-						font = pg.font.Font(pg.font.match_font('papyrus'), 22)
-						surface = font.render('Octodaddy', True, (0, 0, 0))
-						rect = surface.get_rect()
-						rect.center = (512, 26)
-						self.screen.blit(surface, rect)
 				elif isinstance(sprite, Player):
 					pg.draw.ellipse(self.screen, (32, 32, 32), pg.Rect(sprite.rect.x + 8, sprite.rect.y + 48, sprite.rect.width - 16, 16).move(self.camera.camera.topleft))
+			self.screen.blit(sprite.image, self.camera.call(sprite))
+			if isinstance(sprite, Mob):
+				if sprite.type == 'O':
+					draw_boss_health(self.screen, 156, 10, sprite.health / sprite.fullHealth)
+					font = pg.font.Font(pg.font.match_font('papyrus'), 22)
+					surface = font.render('Octodaddy', True, (0, 0, 0))
+					rect = surface.get_rect()
+					rect.center = (512, 26)
+					self.screen.blit(surface, rect)
 
 		self.minimap.draw()
 
