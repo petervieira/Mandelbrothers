@@ -24,6 +24,23 @@ def draw_player_health(surface,x,y,percent):
 		color = (255,0,0)
 	pg.draw.rect(surface,color,fillRect)
 	pg.draw.rect(surface, (255,255,255), outlineRect, 2)
+	
+def draw_boss_health(surface,x,y,percent):
+	if percent < 0:
+		percent = 0
+	BAR_LENGTH = 712
+	BAR_HEIGHT = 30
+	fill = percent * BAR_LENGTH
+	outlineRect = pg.Rect(x,y,BAR_LENGTH,BAR_HEIGHT)
+	fillRect = pg.Rect(x,y,fill,BAR_HEIGHT)
+	if percent > .6:
+		color = (120,0,0)
+	elif percent > .3:
+		color = (180,0,0)
+	else:
+		color = (255,0,0)
+	pg.draw.rect(surface,color,fillRect)
+	pg.draw.rect(surface, (255,255,255), outlineRect, 2)
 
 class Game:
 	def __init__(self):
@@ -40,7 +57,6 @@ class Game:
 		self.game_over = False
 		self.win = False
 		self.interact = True
-		self.minimap = Minimap(self)
 		self.sprites = {}
 		self.wave = 1
 		self.textboxIndex = 0
@@ -61,7 +77,8 @@ class Game:
 		self.map = TiledMap(path.join(gameFolder, 'maps/overworld.tmx'))
 		self.map_img = self.map.make_map()
 		self.map_rect = self.map_img.get_rect()
-		self.load_sprites(['flame', 'arrow', 'icyrock', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'triplearrow', 'speed', 'damage', 'end-game', 'health', 'menu', 'shield', 'pierce'])
+		self.minimap = Minimap(self)
+		self.load_sprites(['flame', 'arrow', 'icyrock', 'oldman', 'oldman_back', 'oldman_left', 'oldman_right', 'warp', 'golem', 'lantern', 'bear', 'icebow', 'icearrow', 'brother', 'triplearrow', 'speed', 'damage', 'end-game', 'health', 'octodaddypog', 'octodaddyhit', 'menu', 'shield', 'pierce'])
 		self.load_sprites_scaled([
 			('side', 48, 64),
 			('side2', 48, 64),
@@ -205,13 +222,15 @@ class Game:
 						else:
 							damage = PROJECTILE_DAMAGE
 						hit.health -= damage * len(collisions[hit])
-						if not SHOP['pierce']:
+						if not SHOP['pierce'] or hit.type == 'O':
 							for projectile in collisions[hit]:
 								projectile.kill()
 					if hit.type == 'B':
 						hit.speed = 450
 						hit.maxSpeed = 450
-
+					if hit.type == 'O':
+						hit.damaged = pg.time.get_ticks()
+						hit.image = game.sprites['octodaddyhit']
 		for hit in pg.sprite.spritecollide(self.player, self.projectiles, False):
 			if hit.type == 'icyrock':
 				self.player.health -= 15
@@ -226,6 +245,7 @@ class Game:
 			SHOP['shoot'] = False
 			SHOP['armor'] = False
 			SHOP['health'] = False
+			SHOP['pierce'] = False
 			SHOP['end-game'] = False
 			STATUS['money'] = 0
 			STATUS['health'] = 100
@@ -247,12 +267,20 @@ class Game:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
 
 		for sprite in self.all_sprites:
+			self.screen.blit(sprite.image, self.camera.call(sprite))
 			if not isinstance(sprite, Item):
 				if isinstance(sprite, Mob):
-					sprite.drawHealth()
+					if sprite.type != 'O':
+						sprite.drawHealth()
+					else:
+						draw_boss_health(self.screen, 156, 10, sprite.health / sprite.fullHealth)
+						font = pg.font.Font(pg.font.match_font('papyrus'), 22)
+						surface = font.render('Octodaddy', True, (0, 0, 0))
+						rect = surface.get_rect()
+						rect.center = (512, 26)
+						self.screen.blit(surface, rect)
 				elif isinstance(sprite, Player):
 					pg.draw.ellipse(self.screen, (32, 32, 32), pg.Rect(sprite.rect.x + 8, sprite.rect.y + 48, sprite.rect.width - 16, 16).move(self.camera.camera.topleft))
-				self.screen.blit(sprite.image, self.camera.call(sprite))
 
 		self.minimap.draw()
 
@@ -265,7 +293,6 @@ class Game:
 			rect = surface.get_rect()
 			rect.center = (512, 743)
 			self.screen.blit(surface, rect)
-
 		for hit in pg.sprite.spritecollide(self.player, self.items, False):
 			hit.draw_textbox()
 

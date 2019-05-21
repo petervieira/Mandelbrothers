@@ -5,8 +5,8 @@ import math
 class Minimap:
 	def __init__(self, game):
 		self.game = game
-		self.width = 49 * TILESIZE / 16
-		self.height = 68 * TILESIZE / 16
+		self.width = self.game.map.width / 16
+		self.height = self.game.map.height / 16
 		self.rect = pg.Rect(WIDTH - self.width - 1, 1, self.width, self.height)
 
 	def update(self):
@@ -29,7 +29,10 @@ class Minimap:
 		for mob in self.game.mobs:
 			x = mob.pos.x / TILESIZE
 			y = mob.pos.y / TILESIZE
-			pg.draw.rect(self.game.screen, (255, 0, 0), pg.Rect(self.rect.x + x * 4, self.rect.y + y * 4 , 4, 4))
+			if mob.type == 'O':
+				pg.draw.rect(self.game.screen, (255, 0, 0), pg.Rect(self.rect.x + x * 4, self.rect.y + y * 4 , 28, 22))
+			else:	
+				pg.draw.rect(self.game.screen, (255, 0, 0), pg.Rect(self.rect.x + x * 4, self.rect.y + y * 4 , 4, 4))
 
 		x = (self.game.player.pos.x + (self.game.player.rect.width - TILESIZE) / 2) / TILESIZE
 		y = self.game.player.pos.y / TILESIZE

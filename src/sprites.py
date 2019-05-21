@@ -259,7 +259,7 @@ class Mob(pg.sprite.Sprite):
 			self.coins = 8
 			self.ghost = False
 		elif type == 'O':
-			self.image = game.sprites['octodaddy']
+			self.image = game.sprites['octodaddypog']
 			self.health = 50000
 			self.fullHealth = 50000
 			self.damage = 200
@@ -280,6 +280,7 @@ class Mob(pg.sprite.Sprite):
 		self.slowtime = 0
 		self.last_hit = 0
 		self.throwtime = 0
+		self.damaged = 0
 
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
@@ -293,10 +294,16 @@ class Mob(pg.sprite.Sprite):
 		self.last_hit += self.game.dt * 1000
 
 		# rotate enemy based on position relative to player
-		if self.vec > -90 and self.vec < 90:
-			self.image = pg.transform.flip(self.default_image, True, False)
-		elif self.vec < -90 or self.vec > 90:
-			self.image = pg.transform.flip(self.default_image, False, False)
+		if self.type != 'O':
+			if self.vec > -90 and self.vec < 90:
+				self.image = pg.transform.flip(self.default_image, True, False)
+			elif self.vec < -90 or self.vec > 90:
+				self.image = pg.transform.flip(self.default_image, False, False)
+		else:
+			time = pg.time.get_ticks()
+			if time - self.damaged > 300:
+				self.damaged = time
+				self.image = self.game.sprites['octodaddypog']
 
 		self.rect = self.image.get_rect()
 		self.rect.x = self.pos.x
@@ -326,7 +333,7 @@ class Mob(pg.sprite.Sprite):
 				time = pg.time.get_ticks()
 				if time - self.throwtime > 2000:
 					self.throwtime = time
-					Projectile(self.game, self.pos + vector(53,80), vector(1,0).rotate(-(self.game.player.pos - self.pos).angle_to(vector(1,0))), 'icyrock')
+					Projectile(self.game, self.pos + (53,80), vector(1,0).rotate(-(self.game.player.pos - self.pos).angle_to(vector(1,0))), 'icyrock')
 		if self.health <= 0:
 			# spawn coins around the enemy
 			for i in range(0, self.coins):
@@ -437,6 +444,7 @@ class Projectile(pg.sprite.Sprite):
 		elif self.type == 'icyrock':
 			if self.lifetime > PROJECTILE_LIFETIME * 3:
 				self.kill()
+
 class Coin(pg.sprite.Sprite):
 	def __init__(self, game, pos):
 		self.groups = game.all_sprites, game.coins
@@ -486,7 +494,7 @@ class WarpZone(pg.sprite.Sprite):
 				pg.mixer.music.set_volume(.5)
 				pg.mixer.music.play(-1, 0.0)
 				self.game.map = TiledMap(path.join(path.dirname(__file__), 'maps/overworld' + str(STATUS['overVisit']) + '.tmx'))
-				if STATUS['overVisit'] < 7:
+				if STATUS['overVisit'] < 8:
 					STATUS['overVisit'] += 1
 					self.game.alpha += 30
 				self.game.wave += 1
