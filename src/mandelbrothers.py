@@ -160,6 +160,7 @@ class Game:
 				Mob(self,tile_object.x,tile_object.y,'B')
 			if tile_object.name == 'octodaddy':
 				Mob(self,tile_object.x,tile_object.y,'O')
+				SHOP['boss'] = True
 			if tile_object.name in ['icebow', 'triplebow', 'shoot', 'damage', 'armor', 'health', 'end-game', 'pierce'] and not SHOP[tile_object.name]:
 				Item(self, (tile_object.x, tile_object.y), tile_object.name)
 
@@ -239,6 +240,8 @@ class Game:
 		if self.player.health <= 0:
 			self.game_over = True
 			SHOP['shop'] = False
+			SHOP['boss'] = False
+			SHOP['spoke'] = False
 			SHOP['icebow'] = False
 			SHOP['triplebow'] = False
 			SHOP['damage'] = False

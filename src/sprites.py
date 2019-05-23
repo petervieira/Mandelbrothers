@@ -369,9 +369,9 @@ class NPC(pg.sprite.Sprite):
 			Textbox("Egads! You have broken my floor!", self.game, self.image),
 			Textbox("...", self.game, self.image),
 			Textbox("Huh? You... You are not from Mandelbrot...", self.game, self.image),
-			Textbox("You whippersnappers always trespass into forbidden lands", self.game, self.image),
+			Textbox("You whippersnappers always trespass into forbidden lands.", self.game, self.image),
 			Textbox("It is not safe here. Not anymore...", self.game, self.image),
-			Textbox("The overworld is infested with ravenous creatures these days", self.game, self.image),
+			Textbox("The overworld is infested with ravenous creatures these days.", self.game, self.image),
 			Textbox("It is foolish to wander around in this corrupted nation", self.game, self.image),
 			Textbox("...though I suppose you may use my shop if you wish", self.game, self.image),
 			Textbox("...", self.game, self.image),
@@ -382,10 +382,21 @@ class NPC(pg.sprite.Sprite):
 		self.vec = (self.game.player.pos - self.pos).angle_to(vector(1,0))
 		self.distance = abs(self.game.player.pos.x - self.pos.x) + abs(self.game.player.pos.y - self.pos.y)
 		if self.type == 'OM':
-			if SHOP["shop"] == False:
+			if SHOP['boss'] == False:
+				if SHOP["shop"] == False:
 					self.game.interact = True
 					SHOP["shop"] = True
 					self.game.textboxes = self.textboxes
+			else:
+				if SHOP["spoke"] == False:
+					self.game.interact = True
+					SHOP["spoke"] = True
+					self.game.textboxes = [
+						Textbox("It appears we have found the cause of this ruckus.", self.game, self.image),
+						Textbox("Octodaddy has been causing tremors with his tentacles", self.game, self.image),
+						Textbox("and has disturbed the tranquility of Mandelbrot.", self.game, self.image),
+						Textbox("The future of this nation lies in your hands.", self.game, self.image)
+					]
 			if self.distance < 150:
 				# rotate npc based on position relative to player
 				if self.vec > -45 and self.vec < 45:
@@ -398,13 +409,16 @@ class NPC(pg.sprite.Sprite):
 					self.image = self.game.sprites['oldman']
 			if pg.key.get_pressed()[pg.K_z] and not self.game.interact and self.rect.colliderect(self.game.player.rect):
 				self.game.interact = True
-				randint = random.randint(1,10)
-				if randint == 1:
-					self.game.textboxes = [Textbox("How was the weather up there?", self.game, self.image)]
-				elif randint > 1 and randint < 5:
-					self.game.textboxes = [Textbox("It's a bit chilly down here...", self.game, self.image)]
+				if SHOP['boss'] == False:
+					randint = random.randint(1,10)
+					if randint == 1:
+						self.game.textboxes = [Textbox("How was the weather up there?", self.game, self.image)]
+					elif randint > 1 and randint < 5:
+						self.game.textboxes = [Textbox("It's a bit chilly down here...", self.game, self.image)]
+					else:
+						self.game.textboxes = [Textbox("Buy anything you like!", self.game, self.image)]
 				else:
-					self.game.textboxes = [Textbox("Buy anything you like!", self.game, self.image)]
+					self.game.textboxes = [Textbox("Octodaddy relies heavily on his sight!", self.game, self.image)]
 
 class Projectile(pg.sprite.Sprite):
 	def __init__ (self, game, pos, dir, type):

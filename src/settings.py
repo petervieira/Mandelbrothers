@@ -22,7 +22,7 @@ ENEMY_HIT_COOLDOWN = 200
 TEXTBOX_DELAY = 750
 
 STATUS = {'money': 0, 'health': 100, 'fullHealth': 100, 'overVisit': 1, 'shopVisit': 0}
-SHOP = {'shop': False, 'icebow': False, 'triplebow': False, 'damage': False, 'shoot': False, 'armor': False, 'health': False, 'pierce': False, 'end-game': False}
+SHOP = {'shop': False, 'boss': False, 'spoke': False, 'icebow': False, 'triplebow': False, 'damage': False, 'shoot': False, 'armor': False, 'health': False, 'pierce': False, 'end-game': False}
 
 ITEMS = {
     'icebow': {'cost': 50, 'desc': ['Ice Bow: an ancient bow found', 'in the glaciers of Greenland']},
