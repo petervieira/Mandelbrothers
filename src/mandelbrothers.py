@@ -258,10 +258,6 @@ class Game:
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps()))
 		#self.map_img.set_alpha(25)
 		self.screen.blit(self.map_img, self.camera.callRect(self.map_rect))
-		temp = pg.Surface((1024, 768))
-		temp.fill((0,0,0))
-		temp.set_alpha(self.alpha)
-		self.screen.blit(temp, (0,0))
 
 		for sprite in self.items:
 			self.screen.blit(sprite.image, self.camera.call(sprite))
@@ -283,6 +279,11 @@ class Game:
 					rect.center = (512, 26)
 					self.screen.blit(surface, rect)
 
+		temp = pg.Surface((1024, 768))
+		temp.fill((0,0,0))
+		temp.set_alpha(self.alpha)
+		self.screen.blit(temp, (0,0))
+		
 		self.minimap.draw()
 
 		if self.interact:
@@ -333,8 +334,9 @@ class Game:
 			rect = surface.get_rect()
 			rect.center = (WIDTH // 2, HEIGHT // 2)
 			self.screen.blit(surface, rect)
-
-		pg.display.flip()
+		
+		pg.display.update()
+		pg.time.delay(5)
 
 	def events(self):
 		for event in pg.event.get():
