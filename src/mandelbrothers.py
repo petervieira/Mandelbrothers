@@ -235,6 +235,7 @@ class Game:
 		for hit in pg.sprite.spritecollide(self.player, self.projectiles, False):
 			if hit.type == 'icyrock':
 				self.player.health -= 15
+				STATUS['health'] -= 15
 				hit.kill()
 
 		if self.player.health <= 0:
