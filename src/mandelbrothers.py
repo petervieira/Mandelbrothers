@@ -236,11 +236,11 @@ class Game:
                     if hit.type == 'O':
                         hit.damaged = pg.time.get_ticks()
                         hit.image = game.sprites['octodaddyhit']
-        for hit in pg.sprite.spritecollide(self.player, self.projectiles, False):
-            if hit.type == 'icyrock':
+        for proj in pg.sprite.spritecollide(self.player, self.projectiles, False):
+            if proj.type == 'icyrock':
                 self.player.health -= 15
                 STATUS['health'] -= 15
-                hit.kill()
+                proj.kill()
 
         if self.player.health <= 0:
             self.game_over = True
@@ -282,7 +282,7 @@ class Game:
                 if sprite.type == 'O':
                     draw_boss_health(self.screen, 156, 10, sprite.health / sprite.fullHealth)
                     font = pg.font.Font(pg.font.match_font('papyrus'), 22)
-                    surface = font.render('Octodaddy', True, (0, 0, 0))
+                    surface = font.render('Octodaddy', True, (255, 255, 255))
                     rect = surface.get_rect()
                     rect.center = (512, 26)
                     self.screen.blit(surface, rect)

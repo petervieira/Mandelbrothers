@@ -432,7 +432,7 @@ class Projectile(pg.sprite.Sprite):
             else:
                 self.image = game.sprites['arrow']
             self.image = pg.transform.rotate(self.image, -90)
-            self.image = pg.transform.rotate(self.image, math.atan2(dir.y * -1,dir.x)*180/math.pi)
+            self.image = pg.transform.rotate(self.image, math.atan2(dir.y * -1,dir.x)*180/math.pi) # formula to angle arrows properly
         elif type == 'icyrock':
             self.image = game.sprites['icyrock']
         self.rect = self.image.get_rect()
@@ -497,27 +497,22 @@ class WarpZone(pg.sprite.Sprite):
             if self.type == 'shop':
                 pg.mixer.music.load(path.join(self.game.gameFolder, 'music/intro.wav'))
                 pg.mixer.music.set_volume(.3)
-                pg.mixer.music.play(-1, 0.0)
                 self.game.map = TiledMap(path.join(self.game.gameFolder, 'maps/shop.tmx'))
-                self.game.map_img = self.game.map.make_map()
-                self.game.map_rect = self.game.map_img.get_rect()
-                self.game.minimap.update()
-                self.game.newGame()
             if self.type == 'overworld':
                 pg.mixer.music.load(path.join(self.game.gameFolder, 'music/theme2.wav'))
                 pg.mixer.music.set_volume(.5)
-                pg.mixer.music.play(-1, 0.0)
                 self.game.map = TiledMap(path.join(self.game.gameFolder, 'maps/overworld' + str(STATUS['overVisit']) + '.tmx'))
+                self.game.wave += 1
                 if STATUS['overVisit'] < 8:
                     STATUS['overVisit'] += 1
                     self.game.alpha += 22
                     self.game.temp.fill((0,0,0))
                     self.game.temp.set_alpha(self.game.alpha)
-                self.game.wave += 1
-                self.game.map_img = self.game.map.make_map()
-                self.game.map_rect = self.game.map_img.get_rect()
-                self.game.minimap.update()
-                self.game.newGame()
+            pg.mixer.music.play(-1, 0.0)
+            self.game.map_img = self.game.map.make_map()
+            self.game.map_rect = self.game.map_img.get_rect()
+            self.game.minimap.update()
+            self.game.newGame()
 
 class Item(pg.sprite.Sprite):
     def __init__(self, game, pos, type):
