@@ -189,7 +189,8 @@ class Game:
 
     def quit(self):
         pg.quit()
-        sys.exit()
+        if __name__ == '__main__':
+            sys.exit()
 
     def update(self):       # FIX PLAYER AND ITEM LAYERS
         self.all_sprites.update()
@@ -372,7 +373,9 @@ class Game:
                         self.textboxDelay = 0
                         self.textboxIndex += 1
 
-# create the game and run it
-while True:
-    game = Game()
-    game.run()
+# name trick to prevent other scripts from executing this module on import
+if __name__ == '__main__':
+    # create the game and run it
+    while True:
+        game = Game()
+        game.run()
