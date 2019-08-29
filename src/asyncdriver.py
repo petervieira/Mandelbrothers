@@ -1,5 +1,5 @@
 from mandelbrothers import *
-import asyncio # this is for use in my discord bot, but is not needed if just running this script
+import asyncio
 
 async def run(game):
         # game loop
